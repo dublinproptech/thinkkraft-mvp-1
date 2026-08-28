@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+web/.next/
+web/out/
+
+# python
+__pycache__/
+*.pyc
+ai-service/.venv/
+
+# env and secrets
+.env
+.env.local
+*.env
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+
+# prisma local
+web/prisma/*.db

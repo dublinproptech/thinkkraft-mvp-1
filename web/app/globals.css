@@ -1,0 +1,62 @@
+
+:root {
+  --ink: #23304a;
+  --navy: #27335c;
+  --violet: #735be9;
+  --violet-2: #9b83ff;
+  --gold: #ffbf4a;
+  --coral: #ff7d6e;
+  --sky: #7fd8f5;
+  --mint: #9ce5c0;
+  --cream: #fffaf1;
+  --paper: #ffffff;
+  --line: #e9e4f4;
+  --muted: #68708a;
+
+  --radius: 18px;
+  --radius-lg: 26px;
+  --shadow: 0 10px 25px rgba(94, 112, 161, 0.16);
+
+  /* font family variables are set by next/font in layout.tsx */
+  --font-body: system-ui, sans-serif;
+  --font-head: system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--cream);
+}
+
+h1, h2, h3 { font-family: var(--font-head); font-weight: 800; margin: 0; }
+
+/* ---- layout ---- */
+.wrap { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+
+/* ---- brand ---- */
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-head); font-weight: 800; font-size: 26px; color: var(--navy); }
+.brand .mark { height: 36px; width: 36px; border-radius: 12px; background: var(--violet); box-shadow: 4px 4px 0 var(--gold); display: grid; place-items: center; color: #fff; }
+.brand small { font: 700 13px var(--font-body); color: var(--violet); }
+
+/* ---- cards ---- */
+.card { background: var(--paper); border: 2px solid var(--line); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+/* ---- status pill ---- */
+.status { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: var(--line); flex: none; }
+.dot.ok { background: var(--mint); }
+.dot.bad { background: var(--coral); }
+.dot.wait { background: var(--gold); }
+.muted { color: var(--muted); font-weight: 700; font-size: 14px; }
+
+/* ---- buttons ---- */
+.btn { border: 0; border-radius: 14px; padding: 12px 18px; font-family: var(--font-body); font-weight: 800; font-size: 15px; cursor: pointer; }
+.btn-primary { color: var(--navy); background: var(--gold); box-shadow: 0 4px 0 #eaa932; }
+.btn-secondary { background: #fff; color: var(--violet); border: 2px solid #ded7ff; }
+
+/* ---- badge ---- */
+.badge { display: inline-flex; gap: 8px; background: #eeeaff; color: #5f4ac2; border-radius: 999px; padding: 7px 13px; font-weight: 800; font-size: 13px; }
