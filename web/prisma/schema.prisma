@@ -5,3 +5,182 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ------- People ------
+
+model Parent {
+	id		String 		@id @default(cuid())
+	name		String
+	email		String		@unique
+	createdAt	DateTime	@default(now())
+	
+	students Student[]
+	consents Consent[]
+}
+
+model Student {
+	id		String		@id @default(cuid())
+	displayName	String
+	ageBand		String
+	createdAt	DateTime	@default(now())
+
+	parentId	String
+	parent		Parent	@relation(fields: [parentId], references: [id])
+
+	enrolments	Enrolment[]
+	projects 	Project[]
+	hintEvents	HintEvent[]
+	skills		SkillMastery[]
+	consents	Consent[]
+
+}
+
+model Teacher {
+	id		String		@id @default(cuid())
+	name		String
+	email		String		@unique
+	createdAt	DateTime	@default(now())
+
+	cohorts		Cohort[]
+	approvedHints	HintEvent[]
+
+}
+
+// ------- Curriculum --------
+
+model Course {
+	id		String		@id @default(cuid())
+	title		String
+	ageBand		String
+	createdAt	DateTime	@default(now())
+
+	lessons Lesson[]
+	cohorts Cohort[]
+
+}
+
+model Lesson {
+	id		String	@id	@default(cuid())
+	orderNo		Int
+	goal		String
+
+	courseId	String
+	course		Course	@relation(fields: [courseId], references: [id])
+
+	projects   Project[]
+	hintEvents HintEvent[]
+
+	@@unique([courseId, orderNo])
+
+}
+
+model Cohort {
+	id		String		@id @default(cuid())
+	schedule	String
+	createdAt	DateTime	@default(now())
+
+	courseId	String
+	course		Course	@relation(fields: [courseId], references: [id])
+	
+	teacherId	String
+	teacher		Teacher	@relation(fields: [teacherId], references: [id])
+
+	enrolments Enrolment[]
+}
+
+// -------- Learning --------
+model Enrolment {
+	id		String		@id @default(cuid())
+	status		EnrolmentStatus	@default(TRIAL)
+	createdAt	DateTime	@default(now())
+
+	studentId	String
+	student		Student	@relation(fields: [studentId], references: [id])
+
+	cohortId	String
+	cohort		Cohort	@relation(fields: [cohortId], references: [id])
+
+	@@unique([studentId, cohortId])
+
+}
+
+model Project {
+	id		String	@id	@default(cuid())
+	sb3Ref		String
+	updatedAt	DateTime	@updatedAt
+	
+	studentId	String
+	student		Student	@relation(fields: [studentId], references: [id])
+
+	lessonId	String
+	lesson		Lesson @relation(fields: [lessonId], references: [id])
+
+}
+
+model HintEvent {
+	id		String	@id	@default(cuid())
+	diagnosis	String
+	level		Int
+	status		HintStatus	@default(PROPOSED)
+	text		String
+	createdAt	DateTime	@default(now())
+	
+	studentId	String
+	student		Student @relation(fields: [studentId], references: [id])
+
+	lessonId	String
+	lesson		Lesson @relation(fields: [lessonId], references: [id])
+	
+	approvedById 	String?
+	approvedBy	Teacher? @relation(fields: [approvedById], references: [id])
+
+}
+
+model SkillMastery {
+	id		String	@id	@default(cuid())
+	skill		String
+	level		MasteryLevel	@default(NOT_STARTED)
+	updatedAt	DateTime	@updatedAt
+	
+	studentId	String
+	student		Student	@relation(fields: [studentId], references: [id])
+
+	@@unique([studentId, skill])
+}
+
+model Consent {
+	id		String	@id	@default(cuid())
+	grantedAt	DateTime	@default(now())
+	
+	parentId	String
+	parent		Parent	@relation(fields: [parentId], references: [id])
+
+	studentId	String
+	student		Student	@relation(fields: [studentId], references: [id])
+
+}
+
+
+// ----------- Enums -------------
+
+enum EnrolmentStatus {
+	TRIAL
+	ACTIVE
+	PAUSED
+	COMPLETED
+	CANCELLED
+}
+
+enum HintStatus {
+	PROPOSED
+	APPROVED
+	DELIVERED
+	REJECTED
+}
+
+enum MasteryLevel {
+	NOT_STARTED
+	LEARNING
+	PRACTISING
+	MASTERED	
+}
