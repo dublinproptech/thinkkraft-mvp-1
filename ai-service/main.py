@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from fastapi import UploadFile, File
 from sb3_parser import parse_sb3
 from checker import check
+from hints import build_hint
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -39,11 +40,14 @@ async def ollama_check():
 
 
 @app.post("/parse")
-async def parse(lesson_id: str, file: UploadFile = File(...)):
+async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...)):
     data = await file.read()
     try:
         signals = parse_sb3(data)
     except Exception as e:
         return {"error": str(e)}
     result = check(lesson_id, signals)
-    return {"signals": signals, "result": result}
+    hint = None
+    if not result["correct"] and result["diagnosis"]:
+        hint = build_hint(result["diagnosis"], attempts)
+    return {"signals": signals, "result": result, "hint": hint}
