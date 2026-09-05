@@ -19,4 +19,4 @@ ai-service/.venv/
 .vscode/
 
 # prisma local
-web/prisma/*.db
+web/prisma/*.dbscratch-editor/
