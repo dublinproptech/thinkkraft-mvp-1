@@ -12,7 +12,8 @@ from fastapi import FastAPI
 from fastapi import UploadFile, File
 from sb3_parser import parse_sb3
 from checker import check
-from hints import build_hint
+from hints import build_hint, LADDER, level_for, guardrail
+from model import rephrase
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -51,3 +52,18 @@ async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...))
     if not result["correct"] and result["diagnosis"]:
         hint = build_hint(result["diagnosis"], attempts)
     return {"signals": signals, "result": result, "hint": hint}
+
+
+def build_hint(diagnosis: str, attempts: int) -> dict:
+    ladder = LADDER.get(diagnosis)
+    if ladder is None:
+        return {
+            "level": 1,
+            "text": "Let's take a look at this together. What are you trying to make happen?",
+        }
+
+    level = level_for(attempts)
+    template = ladder[level]
+    worded = rephrase(template, level)  # model rewords it
+    safe = guardrail(worded, level, ladder)  # guardrail checks the model's output
+    return {"level": level, "text": safe, "template": template}
