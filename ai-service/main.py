@@ -9,6 +9,8 @@ Run:  uvicorn main:app --reload --port 8000
 
 import httpx
 from fastapi import FastAPI
+from fastapi import UploadFile, File
+from sb3_parser import parse_sb3
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -33,3 +35,12 @@ async def ollama_check():
         return {"status": "ok", "ollama": "reachable", "models": models}
     except Exception as exc:
         return {"status": "error", "ollama": "unreachable", "detail": str(exc)}
+
+
+@app.post("/parse")
+async def parse(file: UploadFile = File(...)):
+    data = await file.read()
+    try:
+        return parse_sb3(data)
+    except Exception as e:
+        return {"error": str(e)}
