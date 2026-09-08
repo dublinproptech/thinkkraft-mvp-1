@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-// Store a proposed hint. It starts as PROPOSED: not yet visible to the child.
+
 export function createHint(data: {
   studentId: string;
   lessonId: string;

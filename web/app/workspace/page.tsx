@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import HintPanel from "./HintPanel";
 
 const SCRATCH_URL =
   process.env.NEXT_PUBLIC_SCRATCH_URL ??
@@ -20,6 +21,7 @@ export default function WorkspacePage() {
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [sb3Ref, setSb3Ref] = useState<string | null>(null);
 
   // Read who and which lesson from the URL, e.g. /workspace?studentId=..&lessonId=..
 
@@ -49,6 +51,7 @@ export default function WorkspacePage() {
       return;
     }
     setMsg(`Saved. Project id: ${res.project.id}`);
+    setSb3Ref(res.project.sb3Ref);
   }
 
   return (
@@ -110,6 +113,10 @@ export default function WorkspacePage() {
           </p>
         )}
       </div>
+
+      {sb3Ref && studentId && lessonId && (
+        <HintPanel studentId={studentId} lessonId={lessonId} sb3Ref={sb3Ref} />
+      )}
     </main>
   );
 }

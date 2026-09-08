@@ -1,6 +1,3 @@
-// The single place the core asks the AI service for a hint. It sends the
-// child's saved project plus the lesson and attempt count, and gets back
-// the AI service's verdict and (if wrong) a graded hint.
 import { readFile } from "fs/promises";
 import path from "path";
 
