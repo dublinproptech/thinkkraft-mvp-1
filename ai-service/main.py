@@ -9,6 +9,11 @@ Run:  uvicorn main:app --reload --port 8000
 
 import httpx
 from fastapi import FastAPI
+from fastapi import UploadFile, File
+from sb3_parser import parse_sb3
+from checker import check
+from hints import build_hint, LADDER, level_for, guardrail
+from model import rephrase
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -33,3 +38,32 @@ async def ollama_check():
         return {"status": "ok", "ollama": "reachable", "models": models}
     except Exception as exc:
         return {"status": "error", "ollama": "unreachable", "detail": str(exc)}
+
+
+@app.post("/parse")
+async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...)):
+    data = await file.read()
+    try:
+        signals = parse_sb3(data)
+    except Exception as e:
+        return {"error": str(e)}
+    result = check(lesson_id, signals)
+    hint = None
+    if not result["correct"] and result["diagnosis"]:
+        hint = build_hint(result["diagnosis"], attempts)
+    return {"signals": signals, "result": result, "hint": hint}
+
+
+def build_hint(diagnosis: str, attempts: int) -> dict:
+    ladder = LADDER.get(diagnosis)
+    if ladder is None:
+        return {
+            "level": 1,
+            "text": "Let's take a look at this together. What are you trying to make happen?",
+        }
+
+    level = level_for(attempts)
+    template = ladder[level]
+    worded = rephrase(template, level)  # model rewords it
+    safe = guardrail(worded, level, ladder)  # guardrail checks the model's output
+    return {"level": level, "text": safe, "template": template}
