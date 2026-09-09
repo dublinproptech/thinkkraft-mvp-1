@@ -1,103 +1,83 @@
-"use client";
+import Link from "next/link";
+import Image from "next/image";
 
-import { useEffect, useState } from "react";
-
-// A tiny status dashboard. Its only job in Phase 0 is to prove, visually and
-// in the theme, that the three moving parts are alive and can talk:
-//   - the web app itself (this page rendered, so it is up)
-//   - the database (checked through /api/health)
-//   - the AI service, and through it Ollama (checked through /api/ai-check)
-
-type State = "wait" | "ok" | "bad";
-
-function Row({
-  label,
-  state,
-  detail,
-}: {
-  label: string;
-  state: State;
-  detail?: string;
-}) {
+export default function ThinkKraftHome() {
   return (
-    <div className="card">
-      <div className="status">
-        <span className={`dot ${state}`} />
-        {label}
-      </div>
-      {detail && (
-        <p className="muted" style={{ margin: "10px 0 0" }}>
-          {detail}
+    <main>
+      {/* Navigation Bar */}
+      <header className="wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid var(--line)", paddingBottom: "16px", paddingTop: "16px", position: "relative" }}>
+        {/* Logo Section */}
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <Image 
+            src="/logo.png" 
+            alt="ThinkKraft Logo" 
+            width={120} 
+            height={40} 
+            style={{ objectFit: "contain" }} 
+          />
+        </Link>
+
+        {/* Navigation Links - Perfectly Centered */}
+        <nav style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "32px", fontWeight: 800, fontSize: "18px", color: "var(--navy)" }}>
+          <Link href="#features" style={{ textDecoration: "none", color: "inherit" }}>Features</Link>
+          <Link href="#ai" style={{ textDecoration: "none", color: "inherit" }}>AI Engine</Link>
+          <Link href="#about" style={{ textDecoration: "none", color: "inherit" }}>About Us</Link>
+        </nav>
+
+        {/* Get Started Button */}
+        <button className="btn btn-primary">
+          Get Started
+        </button>
+      </header>
+
+      {/* Hero Section */}
+      <section className="wrap" style={{ textAlign: "center", padding: "80px 24px 40px", maxWidth: "800px" }}>
+        <h1 style={{ fontSize: "3rem", color: "var(--navy)", marginBottom: "24px", lineHeight: 1.1 }}>
+          Powering the Next Generation of <span style={{ color: "var(--violet)" }}>Intelligent Work</span>
+        </h1>
+        <p className="muted" style={{ fontSize: "1.25rem", marginBottom: "40px", lineHeight: 1.6 }}>
+          ThinkKraft seamlessly bridges your web presence with advanced Python-driven AI. Build faster, analyze smarter, and scale without limits.
         </p>
-      )}
-    </div>
-  );
-}
+        <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
+          <button className="btn btn-primary" style={{ padding: "16px 32px", fontSize: "16px" }}>
+            Start Building
+          </button>
+          <button className="btn btn-secondary" style={{ padding: "16px 32px", fontSize: "16px" }}>
+            View Documentation
+          </button>
+        </div>
+      </section>
 
-export default function Home() {
-  const [db, setDb] = useState<State>("wait");
-  const [ai, setAi] = useState<State>("wait");
-  const [aiDetail, setAiDetail] = useState<string>("checking...");
-  const [dbDetail, setDbDetail] = useState<string>("checking...");
+      {/* Feature Grid */}
+      <section id="features" style={{ backgroundColor: "var(--paper)", borderTop: "2px solid var(--line)", padding: "60px 0" }}>
+        <div className="wrap grid">
 
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => r.json())
-      .then((d) => {
-        setDb(d.db === "connected" ? "ok" : "bad");
-        setDbDetail(
-          d.db === "connected"
-            ? "Postgres connected"
-            : (d.detail ?? "unreachable"),
-        );
-      })
-      .catch(() => {
-        setDb("bad");
-        setDbDetail("request failed");
-      });
+          <div className="card">
+            <div className="badge" style={{ marginBottom: "16px", backgroundColor: "var(--sky)", color: "var(--navy)" }}>1</div>
+            <h3 style={{ marginBottom: "12px", color: "var(--navy)" }}>Lightning Fast UI</h3>
+            <p className="muted" style={{ margin: 0, lineHeight: 1.5 }}>
+              Built on Next.js, our frontend delivers sub-second page loads and seamless routing for a premium user experience.
+            </p>
+          </div>
 
-    fetch("/api/ai-check")
-      .then((r) => r.json())
-      .then((d) => {
-        setAi(d.status === "ok" ? "ok" : "bad");
-        setAiDetail(
-          d.status === "ok"
-            ? "AI service reachable"
-            : (d.detail ?? "unreachable"),
-        );
-      })
-      .catch(() => {
-        setAi("bad");
-        setAiDetail("request failed");
-      });
-  }, []);
+          <div className="card">
+            <div className="badge" style={{ marginBottom: "16px", backgroundColor: "var(--mint)", color: "var(--navy)" }}>2</div>
+            <h3 style={{ marginBottom: "12px", color: "var(--navy)" }}>Powerful Python AI</h3>
+            <p className="muted" style={{ margin: 0, lineHeight: 1.5 }}>
+              Backed by FastAPI, our backend effortlessly handles complex machine learning models and high-throughput data processing.
+            </p>
+          </div>
 
-  return (
-    <main className="wrap">
-      <div className="brand">
-        <span className="mark">✦</span> ThinkKraft <small>.ai</small>
-      </div>
+          <div className="card">
+            <div className="badge" style={{ marginBottom: "16px", backgroundColor: "var(--gold)", color: "var(--navy)" }}>3</div>
+            <h3 style={{ marginBottom: "12px", color: "var(--navy)" }}>Reliable Data</h3>
+            <p className="muted" style={{ margin: 0, lineHeight: 1.5 }}>
+              Powered by a robust PostgreSQL database, ensuring your users information is secure, scalable, and instantly accessible.
+            </p>
+          </div>
 
-      <span className="badge" style={{ marginTop: 24 }}>
-        Phase 0 · foundations
-      </span>
-      <h1 style={{ fontSize: 40, margin: "14px 0 6px", color: "var(--navy)" }}>
-        The skeleton is running
-      </h1>
-      <p className="muted" style={{ fontSize: 16, maxWidth: 560 }}>
-        If all three below are green, your web app, database and AI service are
-        wired together and talking.
-      </p>
-
-      <div className="grid" style={{ marginTop: 24 }}>
-        <Row
-          label="Web app"
-          state="ok"
-          detail="This page rendered, so the Next.js app is up"
-        />
-        <Row label="Database" state={db} detail={dbDetail} />
-        <Row label="AI service" state={ai} detail={aiDetail} />
-      </div>
+        </div>
+      </section>
     </main>
   );
 }
