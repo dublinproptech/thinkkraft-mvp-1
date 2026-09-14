@@ -11,39 +11,52 @@ export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
   const seen = useRef<Set<string>>(new Set());
 
   // Poll for approved hints for this child and show any new ones.
+  // Live stream of approved hints via Server-Sent Events.
+  // The browser opens one connection and receives each hint the moment it's approved.
   useEffect(() => {
-    if (!studentId) return; // nothing to poll for until we know the student
+    if (!studentId) return;
 
-    const timer = setInterval(async () => {
-      const r = await fetch(
-        `/api/hints/for-student?studentId=${studentId}`,
-      ).then((x) => x.json());
-      const fresh = (r.hints ?? []).filter(
-        (h: { id: string }) => !seen.current.has(h.id),
-      );
-      if (fresh.length) {
-        fresh.forEach((h: { id: string }) => seen.current.add(h.id));
-        setHints((prev) => [...fresh, ...prev]);
-        setStatus(null);
-      }
-    }, 2000);
-    return () => clearInterval(timer);
+    const source = new EventSource(`/api/hints/stream?studentId=${studentId}`);
+
+    source.onmessage = (event) => {
+      const hint = JSON.parse(event.data) as { id: string; text: string };
+      if (seen.current.has(hint.id)) return;
+      seen.current.add(hint.id);
+      setHints((prev) => [hint, ...prev]);
+      setStatus(null);
+    };
+
+    source.onerror = () => {
+      // The browser auto-reconnects on a dropped connection; nothing to do here.
+    };
+
+    return () => source.close();
   }, [studentId]);
 
   async function checkWork() {
-    const next = attempts + 1;
-    setAttempts(next);
-    setStatus("Checking your work...");
-    const r = await fetch("/api/hints/request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ studentId, lessonId, sb3Ref, attempts: next }),
-    }).then((x) => x.json());
-
-    if (r.correct) setStatus("Nice work! That looks right.");
-    else if (r.status === "pending")
-      setStatus("Milo has a tip for you. Your teacher is just checking it...");
-    else setStatus("Keep going!");
+    try {
+      const next = attempts + 1;
+      setAttempts(next);
+      setStatus("Checking your work...");
+      const res = await fetch("/api/hints/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId, lessonId, sb3Ref, attempts: next }),
+      });
+      if (!res.ok) {
+        setStatus(`Error: server returned ${res.status}`);
+        return;
+      }
+      const r = await res.json();
+      if (r.correct) setStatus("Nice work! That looks right.");
+      else if (r.status === "pending")
+        setStatus(
+          "Milo has a tip for you. Your teacher is just checking it...",
+        );
+      else setStatus("Keep going!");
+    } catch (e) {
+      setStatus(`Something went wrong: ${String(e)}`);
+    }
   }
 
   return (
