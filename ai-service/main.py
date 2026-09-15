@@ -1,9 +1,4 @@
 """
-ThinkKraft AI service - Phase 0 skeleton.
-
-For now this only proves the service runs and can reach Ollama.
-The real pipeline (parse, check, hint ladder, guardrail, model adapter) arrives in Phase 3.
-
 Run:  uvicorn main:app --reload --port 8000
 """
 
@@ -16,6 +11,7 @@ from model import rephrase
 import time
 from collections import defaultdict, deque
 from pydantic import BaseModel
+from monitor import looks_stuck
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -67,12 +63,14 @@ async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...))
 @app.post("/activity")
 async def activity(event: ActivityEvent):
     ACTIVITY[event.studentId].append({"kind": event.kind, "at": time.time()})
-    # For now we just record and echo back what we're holding, so we can see it working.
     recent = list(ACTIVITY[event.studentId])
+
+    verdict = looks_stuck(recent)
     return {
         "studentId": event.studentId,
         "recent_count": len(recent),
-        "last": recent[-1],
+        "stuck": verdict["stuck"],
+        "reason": verdict["reason"],
     }
 
 
