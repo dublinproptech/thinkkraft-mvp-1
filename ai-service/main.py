@@ -12,12 +12,17 @@ import time
 from collections import defaultdict, deque
 from pydantic import BaseModel
 from monitor import looks_stuck
+from governor import may_speak, record_nudge
+from checker import check
+from hints import build_hint, build_hint_for_proactive
 
 app = FastAPI(title="ThinkKraft AI service")
 
 OLLAMA_URL = "http://localhost:11434"
 
 ACTIVITY = defaultdict(lambda: deque(maxlen=50))
+
+PROACTIVE = defaultdict(list)
 
 
 class ActivityEvent(BaseModel):
@@ -66,12 +71,25 @@ async def activity(event: ActivityEvent):
     recent = list(ACTIVITY[event.studentId])
 
     verdict = looks_stuck(recent)
-    return {
-        "studentId": event.studentId,
-        "recent_count": len(recent),
-        "stuck": verdict["stuck"],
-        "reason": verdict["reason"],
-    }
+    if not verdict["stuck"]:
+        return {"stuck": False, "spoke": False, "reason": None}
+
+    gate = may_speak(event.studentId, recent)
+    if not gate["allow"]:
+        return {"stuck": True, "spoke": False, "reason": gate["reason"]}
+
+    diagnosis = f"proactive:{verdict['reason']}"
+    hint = build_hint_for_proactive(event.lessonId, verdict["reason"])
+    record_nudge(event.studentId)
+    PROACTIVE[event.studentId].append(hint)
+
+    return {"stuck": True, "spoke": True, "reason": verdict["reason"], "hint": hint}
+
+
+@app.get("/proactive/{student_id}")
+async def proactive(student_id: str):
+    hints = PROACTIVE.pop(student_id, [])  # hand them over once, then clear
+    return {"hints": hints}
 
 
 def build_hint(diagnosis: str, attempts: int) -> dict:
