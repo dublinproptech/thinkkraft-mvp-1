@@ -59,6 +59,14 @@ export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
     }
   }
 
+  async function emit(kind: string) {
+    await fetch("/api/activity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId, lessonId, kind }),
+    });
+  }
+
   return (
     <div className="card" style={{ marginTop: 16 }}>
       <div className="tag" style={{ marginBottom: 8 }}>
@@ -67,11 +75,23 @@ export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
       <button className="btn btn-primary" onClick={checkWork}>
         Check my work
       </button>
+
       {status && (
         <p className="muted" style={{ marginTop: 12 }}>
           {status}
         </p>
       )}
+      <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+        <button
+          className="btn btn-secondary"
+          onClick={() => emit("block_added")}
+        >
+          simulate: block added
+        </button>
+        <button className="btn btn-secondary" onClick={() => emit("idle_tick")}>
+          simulate: idle
+        </button>
+      </div>
       <div style={{ marginTop: 12 }}>
         {hints.map((h) => (
           <div

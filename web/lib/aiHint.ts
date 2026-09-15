@@ -22,3 +22,15 @@ export async function requestHint(
     hint: { level: number; text: string } | null;
   }>;
 }
+
+export async function sendActivity(
+  studentId: string,
+  lessonId: string,
+  kind: string,
+) {
+  await fetch(`${AI}/activity`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ studentId, lessonId, kind }),
+  });
+}

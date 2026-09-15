@@ -8,16 +8,26 @@ Run:  uvicorn main:app --reload --port 8000
 """
 
 import httpx
-from fastapi import FastAPI
-from fastapi import UploadFile, File
+from fastapi import FastAPI, UploadFile, File
 from sb3_parser import parse_sb3
 from checker import check
 from hints import build_hint, LADDER, level_for, guardrail
 from model import rephrase
+import time
+from collections import defaultdict, deque
+from pydantic import BaseModel
 
 app = FastAPI(title="ThinkKraft AI service")
 
 OLLAMA_URL = "http://localhost:11434"
+
+ACTIVITY = defaultdict(lambda: deque(maxlen=50))
+
+
+class ActivityEvent(BaseModel):
+    studentId: str
+    lessonId: str
+    kind: str
 
 
 @app.get("/health")
@@ -52,6 +62,18 @@ async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...))
     if not result["correct"] and result["diagnosis"]:
         hint = build_hint(result["diagnosis"], attempts)
     return {"signals": signals, "result": result, "hint": hint}
+
+
+@app.post("/activity")
+async def activity(event: ActivityEvent):
+    ACTIVITY[event.studentId].append({"kind": event.kind, "at": time.time()})
+    # For now we just record and echo back what we're holding, so we can see it working.
+    recent = list(ACTIVITY[event.studentId])
+    return {
+        "studentId": event.studentId,
+        "recent_count": len(recent),
+        "last": recent[-1],
+    }
 
 
 def build_hint(diagnosis: str, attempts: int) -> dict:
