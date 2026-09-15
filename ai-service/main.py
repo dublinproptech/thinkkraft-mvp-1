@@ -1,23 +1,34 @@
 """
-ThinkKraft AI service - Phase 0 skeleton.
-
-For now this only proves the service runs and can reach Ollama.
-The real pipeline (parse, check, hint ladder, guardrail, model adapter) arrives in Phase 3.
-
 Run:  uvicorn main:app --reload --port 8000
 """
 
 import httpx
-from fastapi import FastAPI
-from fastapi import UploadFile, File
+from fastapi import FastAPI, UploadFile, File
 from sb3_parser import parse_sb3
 from checker import check
 from hints import build_hint, LADDER, level_for, guardrail
 from model import rephrase
+import time
+from collections import defaultdict, deque
+from pydantic import BaseModel
+from monitor import looks_stuck
+from governor import may_speak, record_nudge
+from checker import check
+from hints import build_hint, build_hint_for_proactive
 
 app = FastAPI(title="ThinkKraft AI service")
 
 OLLAMA_URL = "http://localhost:11434"
+
+ACTIVITY = defaultdict(lambda: deque(maxlen=50))
+
+PROACTIVE = defaultdict(list)
+
+
+class ActivityEvent(BaseModel):
+    studentId: str
+    lessonId: str
+    kind: str
 
 
 @app.get("/health")
@@ -52,6 +63,33 @@ async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...))
     if not result["correct"] and result["diagnosis"]:
         hint = build_hint(result["diagnosis"], attempts)
     return {"signals": signals, "result": result, "hint": hint}
+
+
+@app.post("/activity")
+async def activity(event: ActivityEvent):
+    ACTIVITY[event.studentId].append({"kind": event.kind, "at": time.time()})
+    recent = list(ACTIVITY[event.studentId])
+
+    verdict = looks_stuck(recent)
+    if not verdict["stuck"]:
+        return {"stuck": False, "spoke": False, "reason": None}
+
+    gate = may_speak(event.studentId, recent)
+    if not gate["allow"]:
+        return {"stuck": True, "spoke": False, "reason": gate["reason"]}
+
+    diagnosis = f"proactive:{verdict['reason']}"
+    hint = build_hint_for_proactive(event.lessonId, verdict["reason"])
+    record_nudge(event.studentId)
+    PROACTIVE[event.studentId].append(hint)
+
+    return {"stuck": True, "spoke": True, "reason": verdict["reason"], "hint": hint}
+
+
+@app.get("/proactive/{student_id}")
+async def proactive(student_id: str):
+    hints = PROACTIVE.pop(student_id, [])  # hand them over once, then clear
+    return {"hints": hints}
 
 
 def build_hint(diagnosis: str, attempts: int) -> dict:

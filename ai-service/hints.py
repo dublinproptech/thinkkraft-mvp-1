@@ -44,6 +44,17 @@ GIVEAWAY = [
 ]
 
 
+PROACTIVE_HINTS = {
+    "idle": "Taking a think? That's totally fine. Want a tiny tip to get going again?",
+    "repeated_runs": "I noticed it keeps doing the same thing. What is one small change you could try?",
+}
+
+
+def build_hint_for_proactive(lesson_id: str, reason: str) -> dict:
+    text = PROACTIVE_HINTS.get(reason, "Want a hand with this bit?")
+    return {"level": 1, "text": text, "proactive": True, "reason": reason}
+
+
 def level_for(attempts: int) -> int:
     return 1 if attempts <= 1 else (2 if attempts == 2 else 3)
 
