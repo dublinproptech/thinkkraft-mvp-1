@@ -3,10 +3,6 @@
 import { useEffect, useState } from "react";
 import HintPanel from "./HintPanel";
 
-const SCRATCH_URL =
-  process.env.NEXT_PUBLIC_SCRATCH_URL ??
-  "https://scratch.mit.edu/projects/editor/";
-
 export default function WorkspacePage() {
   const [studentId] = useState(() =>
     typeof window === "undefined"
@@ -22,8 +18,6 @@ export default function WorkspacePage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [sb3Ref, setSb3Ref] = useState<string | null>(null);
-
-  // Read who and which lesson from the URL, e.g. /workspace?studentId=..&lessonId=..
 
   async function save() {
     setErr(null);
@@ -69,28 +63,21 @@ export default function WorkspacePage() {
         Student {studentId || "?"} · lesson {lessonId || "?"}
       </p>
 
-      <div className="card" style={{ marginTop: 20 }}>
-        <h2 style={{ fontSize: 18, color: "var(--navy)" }}>
-          1. Make your game
-        </h2>
-        <p className="muted" style={{ margin: "8px 0 14px" }}>
-          Open Scratch, build your project, then use File then Save to your
-          computer to get a .sb3 file.
-        </p>
-        <a
-          className="btn btn-primary"
-          href={SCRATCH_URL}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open Scratch editor
-        </a>
+      {/* NEW: Embedded Scratch Editor instead of a link! */}
+      <div className="card" style={{ marginTop: 20, padding: 0, overflow: 'hidden', border: '2px solid var(--line)' }}>
+        <iframe
+          src="/scratch-editor/index.html"
+          width="100%"
+          height="700px"
+          style={{ border: 'none', display: 'block', backgroundColor: '#fff' }}
+          title="ThinkKraft Scratch Editor"
+        />
       </div>
 
       <div className="card" style={{ marginTop: 16 }}>
-        <h2 style={{ fontSize: 18, color: "var(--navy)" }}>2. Save it here</h2>
+        <h2 style={{ fontSize: 18, color: "var(--navy)" }}>Save your work</h2>
         <p className="muted" style={{ margin: "8px 0 12px" }}>
-          Upload the .sb3 file you just saved.
+          Use <b>File {'>'} Save to your computer</b> in the editor above, then upload the .sb3 file here.
         </p>
         <input
           type="file"
