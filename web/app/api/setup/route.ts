@@ -1,36 +1,46 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "../../../lib/prisma"; // Adjust path if necessary
+import { prisma } from "../../../lib/prisma";
 
 export async function GET() {
   try {
-    // 1. Hash the password securely
     const hashedPassword = await bcrypt.hash("thinkkraft123", 10);
+    const email = "teacher@thinkkraft.com";
 
-    // 2. Create the Teacher and linked User account
-    const newTeacher = await prisma.teacher.create({
-      data: {
+    // 1. Upsert the Teacher
+    const teacher = await prisma.teacher.upsert({
+      where: { email },
+      update: { name: "Manthan" },
+      create: {
         name: "Manthan",
-        email: "teacher@thinkkraft.com",
-        user: {
-          create: {
-            email: "teacher@thinkkraft.com",
-            password: hashedPassword,
-            role: "TEACHER",
-          }
-        }
-      }
+        email: email,
+      },
+    });
+
+    // 2. Upsert the User account and link it to the teacher
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: { 
+        password: hashedPassword,
+        role: "TEACHER",
+        teacherId: teacher.id 
+      },
+      create: {
+        email: email,
+        password: hashedPassword,
+        role: "TEACHER",
+        teacherId: teacher.id,
+      },
     });
 
     return NextResponse.json({ 
       success: true, 
-      message: "Test teacher account created successfully!", 
-      data: newTeacher 
+      message: "Database seeded successfully! You can now log in.", 
+      user: { email: user.email, role: user.role }
     });
   } catch (error) {
     return NextResponse.json({ 
       success: false, 
-      message: "Account likely already exists, or there was a database error.",
       error: String(error)
     }, { status: 500 });
   }

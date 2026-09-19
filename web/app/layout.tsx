@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito, Baloo_2 } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers"; // <-- 1. Import the new Providers component
 
 // Load the two theme fonts once, here, and expose them as CSS variables
 // (--font-body, --font-head) that globals.css consumes. Doing it in the root
@@ -28,7 +29,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${body.variable} ${head.variable}`}>{children}</body>
+      <body className={`${body.variable} ${head.variable}`}>
+        {/* 2. Wrap children with Providers */}
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
