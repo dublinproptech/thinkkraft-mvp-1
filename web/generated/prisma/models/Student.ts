@@ -188,6 +188,7 @@ export type StudentWhereInput = {
   hintEvents?: Prisma.HintEventListRelationFilter
   skills?: Prisma.SkillMasteryListRelationFilter
   consents?: Prisma.ConsentListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type StudentOrderByWithRelationInput = {
@@ -202,6 +203,7 @@ export type StudentOrderByWithRelationInput = {
   hintEvents?: Prisma.HintEventOrderByRelationAggregateInput
   skills?: Prisma.SkillMasteryOrderByRelationAggregateInput
   consents?: Prisma.ConsentOrderByRelationAggregateInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type StudentWhereUniqueInput = Prisma.AtLeast<{
@@ -219,6 +221,7 @@ export type StudentWhereUniqueInput = Prisma.AtLeast<{
   hintEvents?: Prisma.HintEventListRelationFilter
   skills?: Prisma.SkillMasteryListRelationFilter
   consents?: Prisma.ConsentListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type StudentOrderByWithAggregationInput = {
@@ -254,6 +257,7 @@ export type StudentCreateInput = {
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateInput = {
@@ -267,6 +271,7 @@ export type StudentUncheckedCreateInput = {
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUpdateInput = {
@@ -280,6 +285,7 @@ export type StudentUpdateInput = {
   hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateInput = {
@@ -293,6 +299,7 @@ export type StudentUncheckedUpdateInput = {
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentCreateManyInput = {
@@ -316,6 +323,11 @@ export type StudentUncheckedUpdateManyInput = {
   ageBand?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type StudentNullableScalarRelationFilter = {
+  is?: Prisma.StudentWhereInput | null
+  isNot?: Prisma.StudentWhereInput | null
 }
 
 export type StudentListRelationFilter = {
@@ -355,6 +367,22 @@ export type StudentMinOrderByAggregateInput = {
 export type StudentScalarRelationFilter = {
   is?: Prisma.StudentWhereInput
   isNot?: Prisma.StudentWhereInput
+}
+
+export type StudentCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.StudentCreateWithoutUserInput, Prisma.StudentUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.StudentCreateOrConnectWithoutUserInput
+  connect?: Prisma.StudentWhereUniqueInput
+}
+
+export type StudentUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.StudentCreateWithoutUserInput, Prisma.StudentUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.StudentCreateOrConnectWithoutUserInput
+  upsert?: Prisma.StudentUpsertWithoutUserInput
+  disconnect?: Prisma.StudentWhereInput | boolean
+  delete?: Prisma.StudentWhereInput | boolean
+  connect?: Prisma.StudentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StudentUpdateToOneWithWhereWithoutUserInput, Prisma.StudentUpdateWithoutUserInput>, Prisma.StudentUncheckedUpdateWithoutUserInput>
 }
 
 export type StudentCreateNestedManyWithoutParentInput = {
@@ -469,6 +497,74 @@ export type StudentUpdateOneRequiredWithoutConsentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.StudentUpdateToOneWithWhereWithoutConsentsInput, Prisma.StudentUpdateWithoutConsentsInput>, Prisma.StudentUncheckedUpdateWithoutConsentsInput>
 }
 
+export type StudentCreateWithoutUserInput = {
+  id?: string
+  displayName: string
+  ageBand: string
+  createdAt?: Date | string
+  parent: Prisma.ParentCreateNestedOneWithoutStudentsInput
+  enrolments?: Prisma.EnrolmentCreateNestedManyWithoutStudentInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutStudentInput
+  hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
+  skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
+  consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+}
+
+export type StudentUncheckedCreateWithoutUserInput = {
+  id?: string
+  displayName: string
+  ageBand: string
+  createdAt?: Date | string
+  parentId: string
+  enrolments?: Prisma.EnrolmentUncheckedCreateNestedManyWithoutStudentInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutStudentInput
+  hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
+  consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type StudentCreateOrConnectWithoutUserInput = {
+  where: Prisma.StudentWhereUniqueInput
+  create: Prisma.XOR<Prisma.StudentCreateWithoutUserInput, Prisma.StudentUncheckedCreateWithoutUserInput>
+}
+
+export type StudentUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.StudentUpdateWithoutUserInput, Prisma.StudentUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.StudentCreateWithoutUserInput, Prisma.StudentUncheckedCreateWithoutUserInput>
+  where?: Prisma.StudentWhereInput
+}
+
+export type StudentUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.StudentWhereInput
+  data: Prisma.XOR<Prisma.StudentUpdateWithoutUserInput, Prisma.StudentUncheckedUpdateWithoutUserInput>
+}
+
+export type StudentUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ageBand?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.ParentUpdateOneRequiredWithoutStudentsNestedInput
+  enrolments?: Prisma.EnrolmentUpdateManyWithoutStudentNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutStudentNestedInput
+  hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
+  consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+}
+
+export type StudentUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ageBand?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  enrolments?: Prisma.EnrolmentUncheckedUpdateManyWithoutStudentNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutStudentNestedInput
+  hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
+  consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+}
+
 export type StudentCreateWithoutParentInput = {
   id?: string
   displayName: string
@@ -479,6 +575,7 @@ export type StudentCreateWithoutParentInput = {
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutParentInput = {
@@ -491,6 +588,7 @@ export type StudentUncheckedCreateWithoutParentInput = {
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutParentInput = {
@@ -540,6 +638,7 @@ export type StudentCreateWithoutEnrolmentsInput = {
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutEnrolmentsInput = {
@@ -552,6 +651,7 @@ export type StudentUncheckedCreateWithoutEnrolmentsInput = {
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutEnrolmentsInput = {
@@ -580,6 +680,7 @@ export type StudentUpdateWithoutEnrolmentsInput = {
   hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutEnrolmentsInput = {
@@ -592,6 +693,7 @@ export type StudentUncheckedUpdateWithoutEnrolmentsInput = {
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutProjectsInput = {
@@ -604,6 +706,7 @@ export type StudentCreateWithoutProjectsInput = {
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutProjectsInput = {
@@ -616,6 +719,7 @@ export type StudentUncheckedCreateWithoutProjectsInput = {
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutProjectsInput = {
@@ -644,6 +748,7 @@ export type StudentUpdateWithoutProjectsInput = {
   hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutProjectsInput = {
@@ -656,6 +761,7 @@ export type StudentUncheckedUpdateWithoutProjectsInput = {
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutHintEventsInput = {
@@ -668,6 +774,7 @@ export type StudentCreateWithoutHintEventsInput = {
   projects?: Prisma.ProjectCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutHintEventsInput = {
@@ -680,6 +787,7 @@ export type StudentUncheckedCreateWithoutHintEventsInput = {
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutHintEventsInput = {
@@ -708,6 +816,7 @@ export type StudentUpdateWithoutHintEventsInput = {
   projects?: Prisma.ProjectUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutHintEventsInput = {
@@ -720,6 +829,7 @@ export type StudentUncheckedUpdateWithoutHintEventsInput = {
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutSkillsInput = {
@@ -732,6 +842,7 @@ export type StudentCreateWithoutSkillsInput = {
   projects?: Prisma.ProjectCreateNestedManyWithoutStudentInput
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutSkillsInput = {
@@ -744,6 +855,7 @@ export type StudentUncheckedCreateWithoutSkillsInput = {
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutStudentInput
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutSkillsInput = {
@@ -772,6 +884,7 @@ export type StudentUpdateWithoutSkillsInput = {
   projects?: Prisma.ProjectUpdateManyWithoutStudentNestedInput
   hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutSkillsInput = {
@@ -784,6 +897,7 @@ export type StudentUncheckedUpdateWithoutSkillsInput = {
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutStudentNestedInput
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutConsentsInput = {
@@ -796,6 +910,7 @@ export type StudentCreateWithoutConsentsInput = {
   projects?: Prisma.ProjectCreateNestedManyWithoutStudentInput
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserCreateNestedOneWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutConsentsInput = {
@@ -808,6 +923,7 @@ export type StudentUncheckedCreateWithoutConsentsInput = {
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutStudentInput
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.SkillMasteryUncheckedCreateNestedManyWithoutStudentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutConsentsInput = {
@@ -836,6 +952,7 @@ export type StudentUpdateWithoutConsentsInput = {
   projects?: Prisma.ProjectUpdateManyWithoutStudentNestedInput
   hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutConsentsInput = {
@@ -848,6 +965,7 @@ export type StudentUncheckedUpdateWithoutConsentsInput = {
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutStudentNestedInput
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentCreateManyParentInput = {
@@ -867,6 +985,7 @@ export type StudentUpdateWithoutParentInput = {
   hintEvents?: Prisma.HintEventUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutParentInput = {
@@ -879,6 +998,7 @@ export type StudentUncheckedUpdateWithoutParentInput = {
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.SkillMasteryUncheckedUpdateManyWithoutStudentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutStudentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateManyWithoutParentInput = {
@@ -967,6 +1087,7 @@ export type StudentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   hintEvents?: boolean | Prisma.Student$hintEventsArgs<ExtArgs>
   skills?: boolean | Prisma.Student$skillsArgs<ExtArgs>
   consents?: boolean | Prisma.Student$consentsArgs<ExtArgs>
+  user?: boolean | Prisma.Student$userArgs<ExtArgs>
   _count?: boolean | Prisma.StudentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["student"]>
 
@@ -1004,6 +1125,7 @@ export type StudentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   hintEvents?: boolean | Prisma.Student$hintEventsArgs<ExtArgs>
   skills?: boolean | Prisma.Student$skillsArgs<ExtArgs>
   consents?: boolean | Prisma.Student$consentsArgs<ExtArgs>
+  user?: boolean | Prisma.Student$userArgs<ExtArgs>
   _count?: boolean | Prisma.StudentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StudentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1022,6 +1144,7 @@ export type $StudentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     hintEvents: Prisma.$HintEventPayload<ExtArgs>[]
     skills: Prisma.$SkillMasteryPayload<ExtArgs>[]
     consents: Prisma.$ConsentPayload<ExtArgs>[]
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1429,6 +1552,7 @@ export interface Prisma__StudentClient<T, Null = never, ExtArgs extends runtime.
   hintEvents<T extends Prisma.Student$hintEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$hintEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HintEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   skills<T extends Prisma.Student$skillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$skillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   consents<T extends Prisma.Student$consentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$consentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConsentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user<T extends Prisma.Student$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1981,6 +2105,25 @@ export type Student$consentsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ConsentScalarFieldEnum | Prisma.ConsentScalarFieldEnum[]
+}
+
+/**
+ * Student.user
+ */
+export type Student$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

@@ -1,13 +1,28 @@
 import { createProject } from "@/lib/db/projects";
 import { saveSb3 } from "@/lib/storage";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route"; // Adjust this path if your authOptions is located elsewhere
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  // 1. Get identity securely from the server session
+  const session = await getServerSession(authOptions);
+
+  // 2. Reject unauthenticated requests or non-students
+  if (!session || session.user?.role !== "STUDENT") {
+    return Response.json(
+      { error: "Unauthorized. Only students can save projects." },
+      { status: 401 }
+    );
+  }
+
+  // 3. Grab the student ID directly from the trusted session
+  const studentId = session.user.id;
+
   const form = await req.formData();
   const file = form.get("file");
-  const studentId = form.get("studentId");
-  const lessonId = form.get("lessonId");
+  const lessonId = form.get("lessonId"); // Lesson ID still comes from the form
 
   if (!(file instanceof File)) {
     return Response.json(
@@ -15,9 +30,9 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  if (typeof studentId !== "string" || typeof lessonId !== "string") {
+  if (typeof lessonId !== "string") {
     return Response.json(
-      { error: "studentId and lessonId are required" },
+      { error: "lessonId is required" },
       { status: 400 },
     );
   }
@@ -30,6 +45,9 @@ export async function POST(req: Request) {
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const sb3Ref = await saveSb3(bytes);
+  
+  // 4. Create the project using the trusted studentId
   const project = await createProject({ studentId, lessonId, sb3Ref });
+  
   return Response.json({ project }, { status: 201 });
 }
