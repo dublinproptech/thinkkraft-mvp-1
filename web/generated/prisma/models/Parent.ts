@@ -176,6 +176,7 @@ export type ParentWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Parent"> | Date | string
   students?: Prisma.StudentListRelationFilter
   consents?: Prisma.ConsentListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type ParentOrderByWithRelationInput = {
@@ -185,6 +186,7 @@ export type ParentOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   students?: Prisma.StudentOrderByRelationAggregateInput
   consents?: Prisma.ConsentOrderByRelationAggregateInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ParentWhereUniqueInput = Prisma.AtLeast<{
@@ -197,6 +199,7 @@ export type ParentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Parent"> | Date | string
   students?: Prisma.StudentListRelationFilter
   consents?: Prisma.ConsentListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "email">
 
 export type ParentOrderByWithAggregationInput = {
@@ -226,6 +229,7 @@ export type ParentCreateInput = {
   createdAt?: Date | string
   students?: Prisma.StudentCreateNestedManyWithoutParentInput
   consents?: Prisma.ConsentCreateNestedManyWithoutParentInput
+  user?: Prisma.UserCreateNestedOneWithoutParentInput
 }
 
 export type ParentUncheckedCreateInput = {
@@ -235,6 +239,7 @@ export type ParentUncheckedCreateInput = {
   createdAt?: Date | string
   students?: Prisma.StudentUncheckedCreateNestedManyWithoutParentInput
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutParentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutParentInput
 }
 
 export type ParentUpdateInput = {
@@ -244,6 +249,7 @@ export type ParentUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.StudentUpdateManyWithoutParentNestedInput
   consents?: Prisma.ConsentUpdateManyWithoutParentNestedInput
+  user?: Prisma.UserUpdateOneWithoutParentNestedInput
 }
 
 export type ParentUncheckedUpdateInput = {
@@ -253,6 +259,7 @@ export type ParentUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.StudentUncheckedUpdateManyWithoutParentNestedInput
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutParentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutParentNestedInput
 }
 
 export type ParentCreateManyInput = {
@@ -274,6 +281,11 @@ export type ParentUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ParentNullableScalarRelationFilter = {
+  is?: Prisma.ParentWhereInput | null
+  isNot?: Prisma.ParentWhereInput | null
 }
 
 export type ParentCountOrderByAggregateInput = {
@@ -302,12 +314,20 @@ export type ParentScalarRelationFilter = {
   isNot?: Prisma.ParentWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type ParentCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.ParentCreateWithoutUserInput, Prisma.ParentUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.ParentCreateOrConnectWithoutUserInput
+  connect?: Prisma.ParentWhereUniqueInput
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
+export type ParentUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.ParentCreateWithoutUserInput, Prisma.ParentUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.ParentCreateOrConnectWithoutUserInput
+  upsert?: Prisma.ParentUpsertWithoutUserInput
+  disconnect?: Prisma.ParentWhereInput | boolean
+  delete?: Prisma.ParentWhereInput | boolean
+  connect?: Prisma.ParentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ParentUpdateToOneWithWhereWithoutUserInput, Prisma.ParentUpdateWithoutUserInput>, Prisma.ParentUncheckedUpdateWithoutUserInput>
 }
 
 export type ParentCreateNestedOneWithoutStudentsInput = {
@@ -338,12 +358,65 @@ export type ParentUpdateOneRequiredWithoutConsentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ParentUpdateToOneWithWhereWithoutConsentsInput, Prisma.ParentUpdateWithoutConsentsInput>, Prisma.ParentUncheckedUpdateWithoutConsentsInput>
 }
 
+export type ParentCreateWithoutUserInput = {
+  id?: string
+  name: string
+  email: string
+  createdAt?: Date | string
+  students?: Prisma.StudentCreateNestedManyWithoutParentInput
+  consents?: Prisma.ConsentCreateNestedManyWithoutParentInput
+}
+
+export type ParentUncheckedCreateWithoutUserInput = {
+  id?: string
+  name: string
+  email: string
+  createdAt?: Date | string
+  students?: Prisma.StudentUncheckedCreateNestedManyWithoutParentInput
+  consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutParentInput
+}
+
+export type ParentCreateOrConnectWithoutUserInput = {
+  where: Prisma.ParentWhereUniqueInput
+  create: Prisma.XOR<Prisma.ParentCreateWithoutUserInput, Prisma.ParentUncheckedCreateWithoutUserInput>
+}
+
+export type ParentUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.ParentUpdateWithoutUserInput, Prisma.ParentUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.ParentCreateWithoutUserInput, Prisma.ParentUncheckedCreateWithoutUserInput>
+  where?: Prisma.ParentWhereInput
+}
+
+export type ParentUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.ParentWhereInput
+  data: Prisma.XOR<Prisma.ParentUpdateWithoutUserInput, Prisma.ParentUncheckedUpdateWithoutUserInput>
+}
+
+export type ParentUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  students?: Prisma.StudentUpdateManyWithoutParentNestedInput
+  consents?: Prisma.ConsentUpdateManyWithoutParentNestedInput
+}
+
+export type ParentUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  students?: Prisma.StudentUncheckedUpdateManyWithoutParentNestedInput
+  consents?: Prisma.ConsentUncheckedUpdateManyWithoutParentNestedInput
+}
+
 export type ParentCreateWithoutStudentsInput = {
   id?: string
   name: string
   email: string
   createdAt?: Date | string
   consents?: Prisma.ConsentCreateNestedManyWithoutParentInput
+  user?: Prisma.UserCreateNestedOneWithoutParentInput
 }
 
 export type ParentUncheckedCreateWithoutStudentsInput = {
@@ -352,6 +425,7 @@ export type ParentUncheckedCreateWithoutStudentsInput = {
   email: string
   createdAt?: Date | string
   consents?: Prisma.ConsentUncheckedCreateNestedManyWithoutParentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutParentInput
 }
 
 export type ParentCreateOrConnectWithoutStudentsInput = {
@@ -376,6 +450,7 @@ export type ParentUpdateWithoutStudentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consents?: Prisma.ConsentUpdateManyWithoutParentNestedInput
+  user?: Prisma.UserUpdateOneWithoutParentNestedInput
 }
 
 export type ParentUncheckedUpdateWithoutStudentsInput = {
@@ -384,6 +459,7 @@ export type ParentUncheckedUpdateWithoutStudentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consents?: Prisma.ConsentUncheckedUpdateManyWithoutParentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutParentNestedInput
 }
 
 export type ParentCreateWithoutConsentsInput = {
@@ -392,6 +468,7 @@ export type ParentCreateWithoutConsentsInput = {
   email: string
   createdAt?: Date | string
   students?: Prisma.StudentCreateNestedManyWithoutParentInput
+  user?: Prisma.UserCreateNestedOneWithoutParentInput
 }
 
 export type ParentUncheckedCreateWithoutConsentsInput = {
@@ -400,6 +477,7 @@ export type ParentUncheckedCreateWithoutConsentsInput = {
   email: string
   createdAt?: Date | string
   students?: Prisma.StudentUncheckedCreateNestedManyWithoutParentInput
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutParentInput
 }
 
 export type ParentCreateOrConnectWithoutConsentsInput = {
@@ -424,6 +502,7 @@ export type ParentUpdateWithoutConsentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.StudentUpdateManyWithoutParentNestedInput
+  user?: Prisma.UserUpdateOneWithoutParentNestedInput
 }
 
 export type ParentUncheckedUpdateWithoutConsentsInput = {
@@ -432,6 +511,7 @@ export type ParentUncheckedUpdateWithoutConsentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.StudentUncheckedUpdateManyWithoutParentNestedInput
+  user?: Prisma.UserUncheckedUpdateOneWithoutParentNestedInput
 }
 
 
@@ -481,6 +561,7 @@ export type ParentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   students?: boolean | Prisma.Parent$studentsArgs<ExtArgs>
   consents?: boolean | Prisma.Parent$consentsArgs<ExtArgs>
+  user?: boolean | Prisma.Parent$userArgs<ExtArgs>
   _count?: boolean | Prisma.ParentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["parent"]>
 
@@ -509,6 +590,7 @@ export type ParentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type ParentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   students?: boolean | Prisma.Parent$studentsArgs<ExtArgs>
   consents?: boolean | Prisma.Parent$consentsArgs<ExtArgs>
+  user?: boolean | Prisma.Parent$userArgs<ExtArgs>
   _count?: boolean | Prisma.ParentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ParentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -519,6 +601,7 @@ export type $ParentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     students: Prisma.$StudentPayload<ExtArgs>[]
     consents: Prisma.$ConsentPayload<ExtArgs>[]
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -921,6 +1004,7 @@ export interface Prisma__ParentClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   students<T extends Prisma.Parent$studentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Parent$studentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   consents<T extends Prisma.Parent$consentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Parent$consentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConsentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user<T extends Prisma.Parent$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Parent$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1392,6 +1476,25 @@ export type Parent$consentsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ConsentScalarFieldEnum | Prisma.ConsentScalarFieldEnum[]
+}
+
+/**
+ * Parent.user
+ */
+export type Parent$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

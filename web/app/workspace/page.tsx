@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import HintPanel from "./HintPanel";
 
 const SCRATCH_URL =
@@ -8,28 +10,37 @@ const SCRATCH_URL =
   "https://scratch.mit.edu/projects/editor/";
 
 export default function WorkspacePage() {
-  const [studentId] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : (new URLSearchParams(window.location.search).get("studentId") ?? ""),
-  );
-  const [lessonId] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : (new URLSearchParams(window.location.search).get("lessonId") ?? ""),
-  );
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // 1. Identity is now securely pulled from the session, NOT the URL!
+  const studentId = session?.user?.id;
+  const role = session?.user?.role;
+
+  // 2. Lesson ID temporarily stays in the URL/Params until the Child Dashboard is built
+  const lessonId = searchParams.get("lessonId") || ""; 
+
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [sb3Ref, setSb3Ref] = useState<string | null>(null);
 
-  // Read who and which lesson from the URL, e.g. /workspace?studentId=..&lessonId=..
+  // 3. Security Check: Kick them out if they aren't a logged-in student
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated" && role !== "STUDENT") {
+      router.push("/");
+    }
+  }, [status, role, router]);
 
   async function save() {
     setErr(null);
     setMsg(null);
+    
     if (!studentId || !lessonId) {
-      setErr("Missing studentId or lessonId in the URL.");
+      setErr("Missing student or lesson information.");
       return;
     }
     if (!file) {
@@ -46,13 +57,23 @@ export default function WorkspacePage() {
       method: "POST",
       body: form,
     }).then((r) => r.json());
+    
     if (res.error) {
       setErr(res.error);
       return;
     }
+    
     setMsg(`Saved. Project id: ${res.project.id}`);
     setSb3Ref(res.project.sb3Ref);
   }
+
+  // Show a simple loading state while NextAuth verifies the token
+  if (status === "loading") {
+    return <main className="wrap"><p>Loading workspace...</p></main>;
+  }
+
+  // Prevent rendering the page content if they are being redirected
+  if (!studentId) return null;
 
   return (
     <main className="wrap">
@@ -66,7 +87,7 @@ export default function WorkspacePage() {
         Build your project
       </h1>
       <p className="muted" style={{ fontSize: 15 }}>
-        Student {studentId || "?"} · lesson {lessonId || "?"}
+        Student {studentId} · lesson {lessonId || "?"}
       </p>
 
       <div className="card" style={{ marginTop: 20 }}>

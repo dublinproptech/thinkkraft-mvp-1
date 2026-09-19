@@ -583,10 +583,6 @@ export type EnumHintStatusFieldUpdateOperationsInput = {
   set?: $Enums.HintStatus
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type HintEventCreateWithoutStudentInput = {
   id?: string
   diagnosis: string
