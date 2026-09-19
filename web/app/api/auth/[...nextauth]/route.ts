@@ -17,6 +17,8 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.usernameOrEmail || !credentials?.password) return null;
 
+        console.log("LOGIN ATTEMPT FOR:", credentials.usernameOrEmail);
+
         const user = await prisma.user.findFirst({
           where: {
             OR: [
@@ -26,9 +28,14 @@ export const authOptions: NextAuthOptions = {
           }
         });
 
+        console.log("USER FOUND IN DB:", user ? "YES" : "NO", user ? { id: user.id, email: user.email, role: user.role } : null);
+
         if (!user) return null;
 
         const passwordsMatch = await bcrypt.compare(credentials.password, user.password);
+        
+        console.log("PASSWORD MATCH:", passwordsMatch ? "YES" : "NO");
+
         if (!passwordsMatch) return null;
 
         return {

@@ -1,14 +1,33 @@
 <!DOCTYPE html>
 <html>
   <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google" value="notranslate">
     <link rel="shortcut icon" href="static/favicon.ico">
     <title>Scratch 3.0 GUI</title>
-  <script defer src="gui.js"></script></head>
-  <body>
     
+    <!-- Added: Two-way postMessage communication bridge -->
+    <script>
+      // Listen for messages coming from your Next.js parent window
+      window.addEventListener("message", (event) => {
+        
+        // 1. Listen for a "SAVE_REQUEST" from the parent Next.js button
+        if (event.data && event.data.type === "REQUEST_SAVE") {
+          console.log("Iframe received save request from Next.js");
+          
+          // 2. Send data back up to Next.js
+          // (Note: To send the actual .sb3 file, you will pass the project blob here)
+          window.parent.postMessage({
+            type: "PROJECT_SAVED",
+            payload: { message: "Scratch data bridge is working!" }
+          }, "*"); 
+        }
+      });
+    </script>
+
+    <script defer src="gui.js"></script>
+  </head>
+  <body>
   </body>
 </html>
