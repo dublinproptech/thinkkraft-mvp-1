@@ -20,3 +20,4 @@ ai-service/.venv/
 
 # prisma local
 web/prisma/*.dbscratch-editor/
+scratch-gui/
