@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,7 +32,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--sky)] p-4">
+    // Changed background to var(--cream) and added flex-col to stack logo and card
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--cream)] p-4">
+      
+      {/* Added Logo above the card */}
+      <div className="mb-6 flex flex-col items-center">
+        <Image 
+          src="/logo.png" 
+          alt="ThinkKraft Logo" 
+          width={180} 
+          height={60} 
+          style={{ objectFit: "contain" }} 
+        />
+      </div>
+
       <form 
         onSubmit={handleLogin} 
         className="card flex flex-col gap-5 w-full max-w-sm"
@@ -41,8 +55,9 @@ export default function LoginPage() {
           boxShadow: '8px 8px 0 var(--navy)' 
         }}
       >
+        {/* Changed "Platform Login" to "Login" and increased font size */}
         <div className="text-center mb-2">
-          <h2 style={{ color: 'var(--navy)' }}>Platform Login</h2>
+          <h1 className="text-4xl font-black" style={{ color: 'var(--navy)' }}>Login</h1>
         </div>
         
         {error && (

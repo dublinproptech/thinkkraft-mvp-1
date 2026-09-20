@@ -24,10 +24,23 @@ export default function ThinkKraftHome() {
           <Link href="#about" style={{ textDecoration: "none", color: "inherit" }}>About Us</Link>
         </nav>
 
-        {/* Sign In Button */}
-        <Link href="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>
-          Sign In
-        </Link>
+        {/* Auth Buttons - Header */}
+        <div style={{ display: "flex", gap: "16px" }}>
+          <Link 
+            href="/login" 
+            className="btn" 
+            style={{ textDecoration: "none", padding: "10px 24px", backgroundColor: "white", color: "var(--navy)", border: "2px solid var(--navy)", fontWeight: "bold", boxShadow: "4px 4px 0 var(--navy)", borderRadius: "8px" }}
+          >
+            Login
+          </Link>
+          <Link 
+            href="/register" 
+            className="btn" 
+            style={{ textDecoration: "none", padding: "10px 24px", backgroundColor: "var(--gold)", color: "var(--navy)", border: "2px solid var(--navy)", fontWeight: "bold", boxShadow: "4px 4px 0 var(--navy)", borderRadius: "8px" }}
+          >
+            Register
+          </Link>
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -38,13 +51,23 @@ export default function ThinkKraftHome() {
         <p className="muted" style={{ fontSize: "1.25rem", marginBottom: "40px", lineHeight: 1.6 }}>
           ThinkKraft seamlessly bridges your web presence with advanced Python-driven AI. Build faster, analyze smarter, and scale without limits.
         </p>
-        <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
-          <Link href="/login" className="btn btn-primary" style={{ padding: "16px 32px", fontSize: "16px", textDecoration: "none" }}>
-            Start Building
+        
+        {/* Two Separate CTA Buttons - Hero */}
+        <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
+          <Link 
+            href="/login" 
+            className="btn" 
+            style={{ padding: "16px 32px", fontSize: "16px", textDecoration: "none", backgroundColor: "var(--gold)", color: "var(--navy)", border: "2px solid var(--navy)", fontWeight: "bold", boxShadow: "6px 6px 0 var(--navy)", borderRadius: "10px" }}
+          >
+            Login to Workspace
           </Link>
-          <button className="btn btn-secondary" style={{ padding: "16px 32px", fontSize: "16px" }}>
-            View Documentation
-          </button>
+          <Link 
+            href="/register" 
+            className="btn" 
+            style={{ padding: "16px 32px", fontSize: "16px", textDecoration: "none", backgroundColor: "white", color: "var(--navy)", border: "2px solid var(--navy)", fontWeight: "bold", boxShadow: "6px 6px 0 var(--navy)", borderRadius: "10px" }}
+          >
+            Create an Account
+          </Link>
         </div>
       </section>
 
