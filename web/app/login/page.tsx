@@ -1,12 +1,23 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
-export default function LoginPage() {
+// Where each role lands after signing in. Everyone used to be sent to /teacher,
+// which bounced children and parents straight back out again.
+const HOME: Record<string, string> = {
+  STUDENT: "/dashboard",
+  TEACHER: "/teacher",
+  PARENT: "/parent",
+};
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,89 +34,120 @@ export default function LoginPage() {
       redirect: false,
     });
 
-    if (result?.error) {
-      setError("Invalid credentials. Please try again.");
+    if (!result || result.error) {
+      setError("We could not sign you in. Check your details and try again.");
       setIsLoading(false);
-    } else {
-      router.push("/teacher"); 
+      return;
     }
+
+    // Read the session back to find out which role signed in, then send them
+    // to their own area. If middleware bounced them here from a protected
+    // page, honour that destination instead.
+    const session = await getSession();
+    const role = session?.user?.role;
+    const callbackUrl = searchParams.get("callbackUrl");
+    router.push(callbackUrl || HOME[role ?? ""] || "/");
+    router.refresh();
   };
 
   return (
-    // Changed background to var(--cream) and added flex-col to stack logo and card
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--cream)] p-4">
-      
-      {/* Added Logo above the card */}
-      <div className="mb-6 flex flex-col items-center">
-        <Image 
-          src="/logo.png" 
-          alt="ThinkKraft Logo" 
-          width={180} 
-          height={60} 
-          style={{ objectFit: "contain" }} 
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <Link href="/" style={{ marginBottom: 26 }}>
+        <Image
+          src="/logo.png"
+          alt="ThinkKraft"
+          width={180}
+          height={60}
+          style={{ objectFit: "contain" }}
+          priority
         />
-      </div>
+      </Link>
 
-      <form 
-        onSubmit={handleLogin} 
-        className="card flex flex-col gap-5 w-full max-w-sm"
-        style={{ 
-          backgroundColor: 'var(--gold)', 
-          border: '2px solid var(--navy)',
-          boxShadow: '8px 8px 0 var(--navy)' 
-        }}
-      >
-        {/* Changed "Platform Login" to "Login" and increased font size */}
-        <div className="text-center mb-2">
-          <h1 className="text-4xl font-black" style={{ color: 'var(--navy)' }}>Login</h1>
-        </div>
-        
+      <form onSubmit={handleLogin} className="panel panel-accent" style={{ width: "100%", maxWidth: 400 }}>
+        <h1 style={{ fontSize: 32, color: "var(--navy)", textAlign: "center", marginBottom: 20 }}>
+          Sign in
+        </h1>
+
         {error && (
-          <p className="text-[var(--coral)] text-sm font-bold text-center">
+          <p className="notice notice-error" style={{ marginBottom: 16 }}>
             {error}
           </p>
         )}
-        
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[14px] font-bold" style={{ color: 'var(--navy)' }}>
-            Username or Email
-          </label>
+
+        <div className="field">
+          <label htmlFor="identifier">Username or email</label>
           <input
+            id="identifier"
+            className="input"
             type="text"
-            className="w-full rounded-[var(--radius)] border-2 border-[var(--navy)] bg-[var(--cream)] p-3 text-[var(--ink)] placeholder-[var(--muted)] focus:border-[var(--violet)] focus:outline-none"
             value={usernameOrEmail}
             onChange={(e) => setUsernameOrEmail(e.target.value)}
+            autoComplete="username"
             required
           />
         </div>
-        
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[14px] font-bold" style={{ color: 'var(--navy)' }}>
-            Password or PIN
-          </label>
+
+        <div className="field">
+          <label htmlFor="password">Password or PIN</label>
           <input
+            id="password"
+            className="input"
             type="password"
-            className="w-full rounded-[var(--radius)] border-2 border-[var(--navy)] bg-[var(--cream)] p-3 text-[var(--ink)] placeholder-[var(--muted)] focus:border-[var(--violet)] focus:outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
           />
         </div>
-        
-        <button 
-          type="submit" 
-          disabled={isLoading}
-          className="btn mt-2 w-full disabled:opacity-50"
-          style={{ 
-            backgroundColor: 'var(--paper)', 
-            color: 'var(--navy)',
-            border: '2px solid var(--navy)',
-            boxShadow: '0 4px 0 var(--navy)'
+
+        <button type="submit" className="btn-ghost" disabled={isLoading} style={{ width: "100%" }}>
+          {isLoading ? "Signing in..." : "Sign in"}
+        </button>
+
+        <p
+          style={{
+            textAlign: "center",
+            fontWeight: 800,
+            fontSize: 14,
+            color: "var(--navy)",
+            margin: "18px 0 0",
           }}
         >
-          {isLoading ? "Signing in..." : "Sign In"}
-        </button>
+          New here?{" "}
+          <Link href="/register" style={{ color: "var(--navy)" }}>
+            Create a parent account
+          </Link>
+        </p>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: 12.5,
+            fontWeight: 700,
+            color: "var(--navy)",
+            opacity: 0.75,
+            margin: "8px 0 0",
+          }}
+        >
+          Children sign in with the username and PIN their parent set up.
+        </p>
       </form>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<main className="shell"><p>Loading...</p></main>}>
+      <LoginForm />
+    </Suspense>
   );
 }

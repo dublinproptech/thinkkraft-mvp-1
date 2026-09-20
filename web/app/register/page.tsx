@@ -4,6 +4,22 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+
+// Zod's flatten() puts field problems under fieldErrors and whole-form ones
+// under formErrors. Pull out the first readable line for the banner.
+function firstMessage(error: unknown): string | null {
+  if (typeof error === "string") return error;
+  if (!error || typeof error !== "object") return null;
+  const { fieldErrors, formErrors } = error as {
+    fieldErrors?: Record<string, string[]>;
+    formErrors?: string[];
+  };
+  for (const list of Object.values(fieldErrors ?? {})) {
+    if (list?.[0]) return list[0];
+  }
+  return formErrors?.[0] ?? null;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,103 +27,157 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // A parent registers here. Children do not: their parent creates each child
+  // account from the family dashboard, which is what records consent.
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsLoading(true);
-    
-    // The API route will hardcode the role to "STUDENT" for this form.
-    // Simulating loading state and redirect for now.
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(firstMessage(body?.error) ?? "We could not create that account.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Sign the new parent straight in rather than making them type the same
+      // details again, and take them to the page where they add their children.
+      const signedIn = await signIn("credentials", {
+        usernameOrEmail: email,
+        password,
+        redirect: false,
+      });
+
+      if (signedIn && !signedIn.error) {
+        router.push("/parent");
+        router.refresh();
+        return;
+      }
+
       router.push("/login");
-    }, 1000);
+    } catch {
+      setError("We could not reach the server. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--cream)] p-4">
-      
-      {/* Logo */}
-      <div className="mb-6 flex flex-col items-center">
-        <Link href="/">
-          <Image 
-            src="/logo.png" 
-            alt="ThinkKraft Logo" 
-            width={180} 
-            height={60} 
-            style={{ objectFit: "contain" }} 
-          />
-        </Link>
-      </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <Link href="/" style={{ marginBottom: 26 }}>
+        <Image
+          src="/logo.png"
+          alt="ThinkKraft"
+          width={180}
+          height={60}
+          style={{ objectFit: "contain" }}
+          priority
+        />
+      </Link>
 
-      <form 
+      <form
         onSubmit={handleRegister}
-        className="card flex flex-col gap-4 w-full max-w-sm" 
-        style={{ 
-          backgroundColor: 'var(--gold)', 
-          border: '2px solid var(--navy)', 
-          boxShadow: '8px 8px 0 var(--navy)',
-          padding: '32px'
-        }}
+        className="panel panel-accent"
+        style={{ width: "100%", maxWidth: 400 }}
       >
-        <div className="text-center mb-2">
-          <h1 className="text-3xl font-black" style={{ color: 'var(--navy)' }}>Student Registration</h1>
-        </div>
-        
-        {/* Full Name */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[14px] font-bold" style={{ color: 'var(--navy)' }}>Full Name</label>
-          <input 
-            type="text" 
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full rounded-[var(--radius)] border-2 border-[var(--navy)] bg-[var(--cream)] p-3 text-[var(--ink)] placeholder-[var(--muted)] focus:border-[var(--violet)] focus:outline-none" 
-          />
-        </div>
-
-        {/* Email or Username */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[14px] font-bold" style={{ color: 'var(--navy)' }}>Email or Username</label>
-          <input 
-            type="text" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full rounded-[var(--radius)] border-2 border-[var(--navy)] bg-[var(--cream)] p-3 text-[var(--ink)] placeholder-[var(--muted)] focus:border-[var(--violet)] focus:outline-none" 
-          />
-        </div>
-
-        {/* Password */}
-        <div className="flex flex-col gap-1.5 mb-2">
-          <label className="text-[14px] font-bold" style={{ color: 'var(--navy)' }}>Password or PIN</label>
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full rounded-[var(--radius)] border-2 border-[var(--navy)] bg-[var(--cream)] p-3 text-[var(--ink)] placeholder-[var(--muted)] focus:border-[var(--violet)] focus:outline-none" 
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button 
-          type="submit" 
-          disabled={isLoading}
-          className="btn mt-2 w-full disabled:opacity-50"
-          style={{ 
-            backgroundColor: 'var(--paper)', 
-            color: 'var(--navy)',
-            border: '2px solid var(--navy)',
-            boxShadow: '0 4px 0 var(--navy)'
+        <h1 style={{ fontSize: 30, color: "var(--navy)", textAlign: "center", marginBottom: 6 }}>
+          Create your account
+        </h1>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: 13.5,
+            fontWeight: 700,
+            color: "var(--navy)",
+            opacity: 0.8,
+            margin: "0 0 20px",
           }}
         >
-          {isLoading ? "Creating Account..." : "Create Account"}
+          Parents sign up here. You will add your children on the next screen.
+        </p>
+
+        {error && (
+          <p className="notice notice-error" style={{ marginBottom: 16 }}>
+            {error}
+          </p>
+        )}
+
+        <div className="field">
+          <label htmlFor="name">Your name</label>
+          <input
+            id="name"
+            className="input"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
+            required
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            className="input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            className="input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            minLength={8}
+            placeholder="At least 8 characters"
+          />
+        </div>
+
+        <button type="submit" className="btn-ghost" disabled={isLoading} style={{ width: "100%" }}>
+          {isLoading ? "Creating account..." : "Create account"}
         </button>
 
-        {/* Link back to login */}
-        <p className="text-center text-sm font-bold text-[var(--navy)] mt-4">
-          Already have an account? <Link href="/login" className="underline decoration-2 underline-offset-2">Sign in</Link>
+        <p
+          style={{
+            textAlign: "center",
+            fontWeight: 800,
+            fontSize: 14,
+            color: "var(--navy)",
+            margin: "18px 0 0",
+          }}
+        >
+          Already have an account?{" "}
+          <Link href="/login" style={{ color: "var(--navy)" }}>
+            Sign in
+          </Link>
         </p>
       </form>
     </div>

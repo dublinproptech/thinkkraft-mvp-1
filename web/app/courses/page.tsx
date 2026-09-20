@@ -1,40 +1,56 @@
 import Link from "next/link";
+import Image from "next/image";
 import { listCourses } from "@/lib/db/courses";
 
 export const dynamic = "force-dynamic";
 
 export default async function CoursesPage() {
   const courses = await listCourses();
-  return (
-    <main className="wrap">
-      <div className="brand">
-        <span className="mark">✦</span> ThinkKraft <small>.ai</small>
-      </div>
-      <span className="badge" style={{ marginTop: 24 }}>
-        Phase 1 · courses
-      </span>
-      <h1 style={{ fontSize: 40, margin: "14px 0 6px", color: "var(--navy)" }}>
-        Courses
-      </h1>
-      <p className="muted" style={{ fontSize: 16 }}>
-        Loaded live from the database.
-      </p>
 
-      <div className="grid" style={{ marginTop: 24 }}>
-        {courses.map((c) => (
-          <Link
-            key={c.id}
-            href={`/courses/${c.id}`}
-            className="card"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <h2 style={{ fontSize: 20, color: "var(--navy)" }}>{c.title}</h2>
-            <p className="muted" style={{ marginTop: 8 }}>
-              Ages {c.ageBand}
-            </p>
+  return (
+    <>
+      <header className="appbar">
+        <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+          <Image
+            src="/logo.png"
+            alt="ThinkKraft"
+            width={132}
+            height={44}
+            style={{ objectFit: "contain" }}
+          />
+        </Link>
+        <div className="appbar-links">
+          <Link href="/login" className="btn-ghost btn-sm">
+            Sign in
           </Link>
-        ))}
-      </div>
-    </main>
+          <Link href="/register" className="btn-solid btn-sm">
+            Register
+          </Link>
+        </div>
+      </header>
+
+      <main className="shell">
+        <div className="page-head">
+          <h1>Courses</h1>
+          <p>What your child can learn with us.</p>
+        </div>
+
+        <div className="grid">
+          {courses.map((c) => (
+            <Link
+              key={c.id}
+              href={`/courses/${c.id}`}
+              className="panel"
+              style={{ textDecoration: "none", color: "inherit", display: "block" }}
+            >
+              <h2 style={{ fontSize: 20, color: "var(--navy)" }}>{c.title}</h2>
+              <p className="muted" style={{ marginTop: 8, marginBottom: 0 }}>
+                Ages {c.ageBand}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </main>
+    </>
   );
 }

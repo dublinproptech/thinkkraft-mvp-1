@@ -61,3 +61,141 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 800; margin: 0; }
 
 /* ---- badge ---- */
 .badge { display: inline-flex; gap: 8px; background: #eeeaff; color: #5f4ac2; border-radius: 999px; padding: 7px 13px; font-weight: 800; font-size: 13px; }
+
+/* =====================================================================
+   Shared app chrome.
+
+   The homepage and the login and register screens had settled on one look:
+   a navy outline with a hard offset shadow, no blur. The rest of the app was
+   still on the older soft-shadow cards, and every page was re-declaring the
+   same inline styles. These classes are that look, named once.
+
+   Use .panel for a surface, .btn-solid / .btn-ghost / .btn-danger for
+   actions, and .field + .input for form rows.
+   ===================================================================== */
+
+/* ---- page shell ---- */
+.shell { max-width: 1000px; margin: 0 auto; padding: 0 24px 56px; }
+.shell-narrow { max-width: 560px; margin: 0 auto; padding: 0 24px 56px; }
+
+/* ---- top bar, on every signed-in page ---- */
+.appbar {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.appbar-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* ---- surfaces ---- */
+.panel {
+  background: var(--paper);
+  border: 2px solid var(--navy);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 var(--navy);
+  padding: 24px;
+}
+.panel-flat {
+  background: var(--paper);
+  border: 2px solid var(--navy);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--navy);
+  padding: 18px;
+}
+.panel-accent { background: var(--gold); }
+
+/* ---- buttons ---- */
+.btn-solid,
+.btn-ghost,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 2px solid var(--navy);
+  padding: 11px 20px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--navy);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--navy);
+  transition: transform 0.06s ease, box-shadow 0.06s ease;
+}
+.btn-solid { background: var(--gold); }
+.btn-ghost { background: var(--paper); }
+.btn-danger { background: var(--coral); color: var(--paper); }
+
+/* Press the button into its own shadow, so the whole UI reacts the same way. */
+.btn-solid:active,
+.btn-ghost:active,
+.btn-danger:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--navy);
+}
+.btn-solid:disabled,
+.btn-ghost:disabled,
+.btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--navy);
+}
+.btn-sm { padding: 8px 14px; font-size: 14px; box-shadow: 3px 3px 0 var(--navy); }
+.btn-sm:active { transform: translate(3px, 3px); }
+
+/* ---- forms ---- */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.field label { font-weight: 800; font-size: 14px; color: var(--navy); }
+.field .hint { font-weight: 700; font-size: 12.5px; color: var(--muted); }
+.input {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 10px;
+  border: 2px solid var(--navy);
+  background: var(--cream);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink);
+}
+.input:focus { outline: none; border-color: var(--violet); }
+.input::placeholder { color: var(--muted); font-weight: 600; }
+
+/* ---- messages ---- */
+.notice { border-radius: 10px; border: 2px solid var(--navy); padding: 11px 14px; font-weight: 700; font-size: 14px; }
+.notice-error { background: #ffe9e6; color: #9c2c1e; }
+.notice-ok { background: #e4f7ee; color: #1d6b4a; }
+
+/* ---- role chip in the app bar ---- */
+.rolechip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  border: 2px solid var(--navy);
+  background: var(--sky);
+  color: var(--navy);
+  padding: 5px 13px;
+  font-weight: 800;
+  font-size: 12.5px;
+}
+.rolechip-teacher { background: var(--violet-2); color: var(--paper); }
+.rolechip-parent { background: var(--mint); }
+.rolechip-student { background: var(--gold); }
+
+/* ---- page heading ---- */
+.page-head { margin: 8px 0 26px; }
+.page-head h1 { font-size: 34px; color: var(--navy); margin-bottom: 8px; }
+.page-head p { margin: 0; color: var(--muted); font-weight: 700; font-size: 15.5px; }
+
+/* ---- empty state ---- */
+.empty { text-align: center; padding: 38px 22px; }
+.empty h3 { color: var(--navy); margin-bottom: 8px; }
+.empty p { margin: 0; color: var(--muted); font-weight: 700; }

@@ -1,12 +1,11 @@
 import { z } from "zod";
-import { approveHint } from "@/lib/db/hints";
+import { rejectHint } from "@/lib/db/hints";
 import { requireTeacher } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-// The approval gate. A hint reaches a child only by passing through here.
-// teacherId is never accepted from the request: it comes from the session, so
-// the record of who approved a hint cannot be forged.
+// The other half of the gate. A rejected hint is never delivered, and we record
+// which teacher made the call, the same way approval does.
 const Input = z.object({
   hintId: z.string().min(1),
 });
@@ -21,9 +20,7 @@ export async function POST(req: Request) {
     return Response.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  // who.teacherId is the Teacher row, which is what approvedById points at.
-  // who.userId would be the User row and would fail the foreign key.
-  const updated = await approveHint(parsed.data.hintId, who.teacherId);
+  const updated = await rejectHint(parsed.data.hintId, who.teacherId);
   if (!updated) {
     return Response.json(
       { error: "That hint is not awaiting approval." },

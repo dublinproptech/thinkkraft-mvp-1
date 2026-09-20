@@ -1,139 +1,194 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import AppBar from "../components/AppBar";
 
-// Define the shape of our Hint data
-type Hint = {
+// A hint waiting on a teacher. The queue is every PROPOSED hint, reactive and
+// proactive alike: both go through the same gate before a child sees them.
+type PendingHint = {
   id: string;
   studentId: string;
   lessonId: string;
   diagnosis: string;
+  level: number;
   text: string;
-  status: string;
+  createdAt: string;
+  student: { displayName: string } | null;
 };
 
 export default function TeacherDashboard() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [pendingHints, setPendingHints] = useState<Hint[]>([]);
+  const [pending, setPending] = useState<PendingHint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Security Check: Only let Teachers in!
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated" && session?.user?.role !== "TEACHER") {
-      router.push("/");
-    }
-  }, [status, session, router]);
+  // middleware.ts already keeps non-teachers off this page, so there is no
+  // client-side redirect here. This only decides what to render.
+  const isTeacher = session?.user?.role === "TEACHER";
 
-  // Fetch pending hints (You can also move this to a standard API route later)
-  useEffect(() => {
-    const fetchPendingHints = async () => {
-      try {
-        // Fetching directly via a quick API call (You'll need to create this GET route, 
-        // or we can use Server Actions. For now, assuming you have a GET route!)
-        const res = await fetch("/api/hints?status=PENDING"); 
-        if (res.ok) {
-          const data = await res.json();
-          // Filter to only show proactive hints
-          const proactiveHints = data.hints.filter((h: Hint) => h.diagnosis.startsWith("proactive:"));
-          setPendingHints(proactiveHints);
-        }
-      } catch (error) {
-        console.error("Failed to fetch hints:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (session?.user?.role === "TEACHER") {
-      fetchPendingHints();
-    }
-  }, [session]);
-
-  const handleReview = async (hintId: string, newStatus: "APPROVED" | "REJECTED") => {
+  const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/hints/${hintId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        // Remove the hint from the screen once reviewed
-        setPendingHints((prev) => prev.filter((h) => h.id !== hintId));
+      const res = await fetch("/api/hints/pending");
+      if (!res.ok) {
+        setError("Could not load the approval queue.");
+        return;
       }
-    } catch (error) {
-      console.error("Error updating hint:", error);
+      const data = await res.json();
+      setPending(data.pending ?? []);
+      setError(null);
+    } catch {
+      setError("Could not reach the server.");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  if (status === "loading" || isLoading) return <main className="wrap"><p>Loading dashboard...</p></main>;
-  if (session?.user?.role !== "TEACHER") return null;
+  useEffect(() => {
+    if (!isTeacher) return;
+    // Hints arrive while the teacher is looking at the page, so poll. The first
+    // fetch goes through the same timer callback rather than running in the
+    // effect body, so the effect never sets state synchronously.
+    const tick = () => void load();
+    const first = setTimeout(tick, 0);
+    const timer = setInterval(tick, 5000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(timer);
+    };
+  }, [isTeacher, load]);
+
+  async function decide(hintId: string, action: "approve" | "reject") {
+    setBusyId(hintId);
+    setError(null);
+    try {
+      const res = await fetch(`/api/hints/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hintId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(typeof body?.error === "string" ? body.error : `That ${action} did not go through.`);
+        await load();
+        return;
+      }
+      // Drop it from the queue straight away; the poll will confirm.
+      setPending((prev) => prev.filter((h) => h.id !== hintId));
+    } catch {
+      setError("Could not reach the server.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (status === "loading" || (isTeacher && isLoading)) {
+    return (
+      <>
+        <AppBar />
+        <main className="shell">
+          <p>Loading dashboard...</p>
+        </main>
+      </>
+    );
+  }
+
+  if (!isTeacher) return null;
 
   return (
-    <main className="wrap">
-      <div className="brand">
-        <span className="mark">✦</span> ThinkKraft <small>.ai</small>
-      </div>
-      <span className="badge" style={{ marginTop: 24, backgroundColor: 'var(--purple)', color: 'white' }}>
-        Teacher Portal
-      </span>
-      
-      <h1 style={{ fontSize: 34, margin: "14px 0 24px", color: "var(--navy)" }}>
-        Proactive Hint Approvals
-      </h1>
+    <>
+      <AppBar />
 
-      {pendingHints.length === 0 ? (
-        <div className="card" style={{ textAlign: "center", padding: "40px 20px" }}>
-          <h3 style={{ color: "var(--navy)" }}>All caught up! 🎉</h3>
-          <p className="muted">No students currently need proactive assistance.</p>
+      <main className="shell">
+      <div className="page-head">
+        <h1>Hint approvals</h1>
+        <p>Nothing reaches a child until you approve it.</p>
+      </div>
+
+      {error && (
+        <p className="notice notice-error" style={{ marginBottom: 16 }}>
+          {error}
+        </p>
+      )}
+
+      {pending.length === 0 ? (
+        <div className="panel empty">
+          <h3>All caught up</h3>
+          <p>No hints are waiting for review.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {pendingHints.map((hint) => (
-            <div key={hint.id} className="card" style={{ borderLeft: "4px solid var(--blue)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <h3 style={{ margin: "0 0 8px", color: "var(--navy)" }}>
-                    Student: {hint.studentId}
-                  </h3>
-                  <p className="muted" style={{ margin: "0 0 4px", fontSize: "14px" }}>
-                    <b>Lesson:</b> {hint.lessonId}
-                  </p>
-                  <p className="muted" style={{ margin: "0 0 16px", fontSize: "14px" }}>
-                    <b>AI Diagnosis:</b> {hint.diagnosis.replace("proactive:", "")}
-                  </p>
-                  
-                  <div style={{ backgroundColor: "#F3F4F6", padding: "12px", borderRadius: "6px" }}>
-                    <b>Proposed Hint:</b> "{hint.text}"
+          {pending.map((hint) => {
+            const proactive = hint.diagnosis.startsWith("proactive:");
+            return (
+              <div
+                key={hint.id}
+                className="panel"
+                // Proactive nudges and hints the child asked for read very
+                // differently to a teacher, so mark which is which.
+                style={{ borderLeftWidth: 10, borderLeftColor: proactive ? "var(--violet)" : "var(--sky)" }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: 16,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div style={{ flex: "1 1 320px" }}>
+                    <h3 style={{ margin: "0 0 8px", color: "var(--navy)" }}>
+                      {hint.student?.displayName ?? "Unknown student"}
+                    </h3>
+                    <p className="muted" style={{ margin: "0 0 4px", fontSize: 14 }}>
+                      <b>Lesson:</b> {hint.lessonId} · <b>Level:</b> {hint.level} ·{" "}
+                      <b>{proactive ? "Proactive" : "Requested"}</b>
+                    </p>
+                    <p className="muted" style={{ margin: "0 0 16px", fontSize: 14 }}>
+                      <b>Diagnosis:</b> {hint.diagnosis.replace("proactive:", "")}
+                    </p>
+
+                    <div
+                      style={{
+                        background: "var(--cream)",
+                        border: "2px solid var(--line)",
+                        padding: "12px 14px",
+                        borderRadius: 10,
+                        color: "var(--ink)",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {hint.text}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
+                    <button
+                      onClick={() => decide(hint.id, "approve")}
+                      disabled={busyId === hint.id}
+                      className="btn-solid btn-sm"
+                      style={{ minWidth: 110 }}
+                    >
+                      {busyId === hint.id ? "Saving..." : "Approve"}
+                    </button>
+                    <button
+                      onClick={() => decide(hint.id, "reject")}
+                      disabled={busyId === hint.id}
+                      className="btn-danger btn-sm"
+                      style={{ minWidth: 110 }}
+                    >
+                      Reject
+                    </button>
                   </div>
                 </div>
-
-                <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
-                  <button 
-                    onClick={() => handleReview(hint.id, "APPROVED")}
-                    className="btn btn-primary"
-                    style={{ backgroundColor: "#10B981", color: "white", minWidth: "100px" }}
-                  >
-                    Approve
-                  </button>
-                  <button 
-                    onClick={() => handleReview(hint.id, "REJECTED")}
-                    className="btn"
-                    style={{ backgroundColor: "#FEE2E2", color: "#DC2626", minWidth: "100px", border: "none" }}
-                  >
-                    Reject
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
-    </main>
+      </main>
+    </>
   );
 }

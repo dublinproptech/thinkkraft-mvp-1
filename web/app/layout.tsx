@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Nunito, Baloo_2 } from "next/font/google";
+import { getServerSession } from "next-auth";
 import "./globals.css";
-import { Providers } from "./providers"; // <-- 1. Import the new Providers component
+import { Providers } from "./providers";
+import { authOptions } from "@/lib/auth";
 
 // Load the two theme fonts once, here, and expose them as CSS variables
 // (--font-body, --font-head) that globals.css consumes. Doing it in the root
@@ -22,18 +24,17 @@ export const metadata: Metadata = {
   description: "Creative coding for children, human-led and AI-supported.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
       <body className={`${body.variable} ${head.variable}`}>
-        {/* 2. Wrap children with Providers */}
-        <Providers>
-          {children}
-        </Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );
