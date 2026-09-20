@@ -6,6 +6,7 @@ web/out/
 # python
 __pycache__/
 *.pyc
+venv/
 ai-service/.venv/
 
 # env and secrets
@@ -19,5 +20,8 @@ ai-service/.venv/
 .vscode/
 
 # prisma local
-web/prisma/*.dbscratch-editor/
+web/prisma/*.db
+
+# external tools
+scratch-editor/
 scratch-gui/

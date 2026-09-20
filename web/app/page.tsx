@@ -24,10 +24,10 @@ export default function ThinkKraftHome() {
           <Link href="#about" style={{ textDecoration: "none", color: "inherit" }}>About Us</Link>
         </nav>
 
-        {/* Get Started Button */}
-        <button className="btn btn-primary">
-          Get Started
-        </button>
+        {/* Sign In Button */}
+        <Link href="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>
+          Sign In
+        </Link>
       </header>
 
       {/* Hero Section */}
@@ -39,9 +39,9 @@ export default function ThinkKraftHome() {
           ThinkKraft seamlessly bridges your web presence with advanced Python-driven AI. Build faster, analyze smarter, and scale without limits.
         </p>
         <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
-          <button className="btn btn-primary" style={{ padding: "16px 32px", fontSize: "16px" }}>
+          <Link href="/login" className="btn btn-primary" style={{ padding: "16px 32px", fontSize: "16px", textDecoration: "none" }}>
             Start Building
-          </button>
+          </Link>
           <button className="btn btn-secondary" style={{ padding: "16px 32px", fontSize: "16px" }}>
             View Documentation
           </button>
