@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import toast from "react-hot-toast"; // <-- Added toast import
 
 // Zod's flatten() puts field problems under fieldErrors and whole-form ones
 // under formErrors. Pull out the first readable line for the banner.
@@ -27,13 +28,11 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // A parent registers here. Children do not: their parent creates each child
   // account from the family dashboard, which is what records consent.
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
     try {
@@ -45,10 +44,14 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        setError(firstMessage(body?.error) ?? "We could not create that account.");
+        // Trigger error toast instead of inline text
+        toast.error(firstMessage(body?.error) ?? "We could not create that account.");
         setIsLoading(false);
         return;
       }
+
+      // Trigger success toast
+      toast.success("Account created successfully!");
 
       // Sign the new parent straight in rather than making them type the same
       // details again, and take them to the page where they add their children.
@@ -66,7 +69,8 @@ export default function RegisterPage() {
 
       router.push("/login");
     } catch {
-      setError("We could not reach the server. Please try again.");
+      // Catch network failures with a toast
+      toast.error("We could not reach the server. Please try again.");
       setIsLoading(false);
     }
   };
@@ -113,12 +117,6 @@ export default function RegisterPage() {
         >
           Parents sign up here. You will add your children on the next screen.
         </p>
-
-        {error && (
-          <p className="notice notice-error" style={{ marginBottom: 16 }}>
-            {error}
-          </p>
-        )}
 
         <div className="field">
           <label htmlFor="name">Your name</label>

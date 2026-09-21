@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import "./globals.css";
 import { Providers } from "./providers";
 import { authOptions } from "@/lib/auth";
+import { Toaster } from "react-hot-toast"; // <-- 1. Import Toaster
 
 // Load the two theme fonts once, here, and expose them as CSS variables
 // (--font-body, --font-head) that globals.css consumes. Doing it in the root
@@ -35,6 +36,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${body.variable} ${head.variable}`}>
         <Providers session={session}>{children}</Providers>
+        <Toaster position="bottom-center" /> {/* <-- 2. Add Toaster here */}
       </body>
     </html>
   );
