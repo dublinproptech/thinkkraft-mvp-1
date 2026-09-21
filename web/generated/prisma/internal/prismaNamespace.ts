@@ -408,6 +408,7 @@ export const ModelName = {
   Project: 'Project',
   HintEvent: 'HintEvent',
   SkillMastery: 'SkillMastery',
+  StudentProgress: 'StudentProgress',
   Consent: 'Consent'
 } as const
 
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "parent" | "student" | "teacher" | "course" | "lesson" | "cohort" | "enrolment" | "project" | "hintEvent" | "skillMastery" | "consent"
+    modelProps: "user" | "parent" | "student" | "teacher" | "course" | "lesson" | "cohort" | "enrolment" | "project" | "hintEvent" | "skillMastery" | "studentProgress" | "consent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1242,6 +1243,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StudentProgress: {
+      payload: Prisma.$StudentProgressPayload<ExtArgs>
+      fields: Prisma.StudentProgressFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StudentProgressFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StudentProgressFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>
+        }
+        findFirst: {
+          args: Prisma.StudentProgressFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StudentProgressFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>
+        }
+        findMany: {
+          args: Prisma.StudentProgressFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>[]
+        }
+        create: {
+          args: Prisma.StudentProgressCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>
+        }
+        createMany: {
+          args: Prisma.StudentProgressCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StudentProgressCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>[]
+        }
+        delete: {
+          args: Prisma.StudentProgressDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>
+        }
+        update: {
+          args: Prisma.StudentProgressUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>
+        }
+        deleteMany: {
+          args: Prisma.StudentProgressDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StudentProgressUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StudentProgressUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>[]
+        }
+        upsert: {
+          args: Prisma.StudentProgressUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentProgressPayload>
+        }
+        aggregate: {
+          args: Prisma.StudentProgressAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStudentProgress>
+        }
+        groupBy: {
+          args: Prisma.StudentProgressGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudentProgressGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StudentProgressCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudentProgressCountAggregateOutputType> | number
+        }
+      }
+    }
     Consent: {
       payload: Prisma.$ConsentPayload<ExtArgs>
       fields: Prisma.ConsentFieldRefs
@@ -1480,6 +1555,18 @@ export const SkillMasteryScalarFieldEnum = {
 export type SkillMasteryScalarFieldEnum = (typeof SkillMasteryScalarFieldEnum)[keyof typeof SkillMasteryScalarFieldEnum]
 
 
+export const StudentProgressScalarFieldEnum = {
+  id: 'id',
+  completed: 'completed',
+  blocksUsed: 'blocksUsed',
+  updatedAt: 'updatedAt',
+  studentId: 'studentId',
+  lessonId: 'lessonId'
+} as const
+
+export type StudentProgressScalarFieldEnum = (typeof StudentProgressScalarFieldEnum)[keyof typeof StudentProgressScalarFieldEnum]
+
+
 export const ConsentScalarFieldEnum = {
   id: 'id',
   grantedAt: 'grantedAt',
@@ -1615,6 +1702,13 @@ export type EnumMasteryLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'MasteryLevel[]'
  */
 export type ListEnumMasteryLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MasteryLevel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -1793,6 +1887,7 @@ export type GlobalOmitConfig = {
   project?: Prisma.ProjectOmit
   hintEvent?: Prisma.HintEventOmit
   skillMastery?: Prisma.SkillMasteryOmit
+  studentProgress?: Prisma.StudentProgressOmit
   consent?: Prisma.ConsentOmit
 }
 

@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 
+// studentId is no longer passed to the server anywhere in here: every one of
+// these routes reads it from the session. It stays as a prop only to know when
+// the child's identity is ready, and to key the stream effect.
 type Props = { studentId: string; lessonId: string; sb3Ref: string };
 
 export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
@@ -16,7 +19,9 @@ export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
   useEffect(() => {
     if (!studentId) return;
 
-    const source = new EventSource(`/api/hints/stream?studentId=${studentId}`);
+    // No studentId in the URL: the stream serves whoever the session says you
+    // are, so one child cannot listen in on another's hints.
+    const source = new EventSource("/api/hints/stream");
 
     source.onmessage = (event) => {
       const hint = JSON.parse(event.data) as { id: string; text: string };
@@ -41,7 +46,7 @@ export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
       const res = await fetch("/api/hints/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId, lessonId, sb3Ref, attempts: next }),
+        body: JSON.stringify({ lessonId, sb3Ref, attempts: next }),
       });
       if (!res.ok) {
         setStatus(`Error: server returned ${res.status}`);
@@ -63,45 +68,50 @@ export default function HintPanel({ studentId, lessonId, sb3Ref }: Props) {
     await fetch("/api/activity", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ studentId, lessonId, kind }),
+      body: JSON.stringify({ lessonId, kind }),
     });
   }
 
   return (
-    <div className="card" style={{ marginTop: 16 }}>
-      <div className="tag" style={{ marginBottom: 8 }}>
+    <div className="panel" style={{ marginTop: 16 }}>
+      <div className="badge" style={{ marginBottom: 12 }}>
         Milo, your coding buddy
       </div>
-      <button className="btn btn-primary" onClick={checkWork}>
-        Check my work
-      </button>
+
+      <div>
+        <button className="btn-solid" onClick={checkWork}>
+          Check my work
+        </button>
+      </div>
 
       {status && (
-        <p className="muted" style={{ marginTop: 12 }}>
+        <p className="muted" style={{ marginTop: 12, marginBottom: 0 }}>
           {status}
         </p>
       )}
-      <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-        <button
-          className="btn btn-secondary"
-          onClick={() => emit("block_added")}
-        >
+
+      <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button className="btn-ghost btn-sm" onClick={() => emit("block_added")}>
           simulate: block added
         </button>
-        <button className="btn btn-secondary" onClick={() => emit("idle_tick")}>
+        <button className="btn-ghost btn-sm" onClick={() => emit("idle_tick")}>
           simulate: idle
         </button>
       </div>
-      <div style={{ marginTop: 12 }}>
+
+      <div style={{ marginTop: 14 }}>
         {hints.map((h) => (
           <div
             key={h.id}
-            className="badge"
             style={{
-              display: "block",
-              marginTop: 8,
-              padding: "12px 14px",
-              borderRadius: 14,
+              marginTop: 10,
+              padding: "13px 15px",
+              borderRadius: 12,
+              border: "2px solid var(--navy)",
+              background: "var(--mint)",
+              color: "var(--navy)",
+              fontWeight: 700,
+              lineHeight: 1.5,
             }}
           >
             {h.text}

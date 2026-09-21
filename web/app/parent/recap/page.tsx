@@ -1,83 +1,121 @@
-import React from 'react';
-import { PrismaClient } from '../../../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import AppBar from "../../components/AppBar";
 
-// Initialize Prisma with the driver adapter
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+// A child's week, for their own parent.
+//
+// This page used to call prisma.student.findFirst() with no filter, which
+// showed whoever happened to be first in the table: another family's child as
+// often as your own. It now reads the parent from the session and will only
+// ever load a child belonging to them.
+export default async function WeeklyRecapPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ studentId?: string }>;
+}) {
+  const session = await getServerSession(authOptions);
+  const parentId = session?.user?.parentId;
 
-export default async function WeeklyRecapPage() {
-  // Fetch real data from PostgreSQL via Prisma
-  const studentData = await prisma.student.findFirst({
+  // middleware.ts keeps non-parents off /parent/*, so this is a backstop.
+  if (!parentId) redirect("/login");
+
+  const { studentId } = await searchParams;
+
+  const student = await prisma.student.findFirst({
+    // parentId is part of the lookup, not a check afterwards: a studentId from
+    // another family simply does not match.
+    where: { parentId, ...(studentId ? { id: studentId } : {}) },
+    orderBy: { createdAt: "asc" },
     include: {
       _count: {
         select: {
           projects: true,
-          hintEvents: {
-            where: {
-              status: { in: ['APPROVED', 'DELIVERED'] }
-            }
-          }
-        }
+          hintEvents: { where: { status: { in: ["APPROVED", "DELIVERED"] } } },
+        },
       },
       skills: {
-        where: {
-          level: { in: ['LEARNING', 'PRACTISING'] }
-        },
-        orderBy: { updatedAt: 'desc' },
-        take: 1
-      }
-    }
+        where: { level: { in: ["LEARNING", "PRACTISING"] } },
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+      },
+    },
   });
 
-  // Handle the case where the database is empty
-  if (!studentData) {
+  if (!student) {
     return (
-      <main className="wrap">
-        <p className="muted" style={{ fontSize: '18px', marginTop: '32px' }}>
-          No student progress data found for this week.
-        </p>
-      </main>
+      <>
+        <AppBar links={[{ href: "/parent", label: "Your family" }]} />
+        <main className="shell">
+          <div className="page-head">
+            <h1>Weekly recap</h1>
+          </div>
+          <div className="panel empty">
+            <h3>Nothing to show yet</h3>
+            <p style={{ marginBottom: 18 }}>
+              {studentId
+                ? "We could not find that child in your family."
+                : "Add a child to start seeing their progress here."}
+            </p>
+            <Link href="/parent" className="btn-solid">
+              Go to your family
+            </Link>
+          </div>
+        </main>
+      </>
     );
   }
 
-  // Set the mastery focus string
-  const currentFocus = studentData.skills[0]?.skill || "Foundational Concepts";
+  const currentFocus = student.skills[0]?.skill ?? "Foundational concepts";
 
   return (
-    <main className="wrap">
-      {/* Header Section */}
-      <header style={{ marginBottom: '32px' }}>
-        <h1 style={{ color: 'var(--navy)', marginBottom: '8px' }}>Weekly Progress Recap</h1>
-        <p className="muted" style={{ fontSize: '18px' }}>Great work from {studentData.displayName} this week!</p>
-      </header>
+    <>
+      <AppBar links={[{ href: "/parent", label: "Your family" }]} />
 
-      {/* Metrics Grid */}
-      <section className="grid" style={{ marginBottom: '32px' }}>
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <span style={{ fontSize: '48px', fontWeight: 800, color: 'var(--violet)', lineHeight: 1 }}>
-            {studentData._count.projects}
-          </span>
-          <span className="muted" style={{ marginTop: '12px' }}>Lessons Completed</span>
+      <main className="shell">
+        <div className="page-head">
+          <h1>{student.displayName}&apos;s week</h1>
+          <p>Here is how {student.displayName} has been getting on.</p>
         </div>
-        
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <span style={{ fontSize: '48px', fontWeight: 800, color: 'var(--gold)', lineHeight: 1 }}>
-            {studentData._count.hintEvents}
-          </span>
-          <span className="muted" style={{ marginTop: '12px' }}>AI Hints Utilized</span>
-        </div>
-      </section>
 
-      {/* Details Card */}
-      <section className="card">
-        <div className="badge" style={{ marginBottom: '16px' }}>Current Focus</div>
-        <h2 style={{ color: 'var(--navy)', marginBottom: '12px' }}>{currentFocus}</h2>
-        <p style={{ lineHeight: 1.6 }}>
-          {studentData.displayName} is showing strong progress in <strong>{currentFocus}</strong>. 
-          The AI tutor stepped in a couple of times to help clarify concepts, which was safely approved by the teacher.
-        </p>
-      </section>
-    </main>
+        <section className="grid" style={{ marginBottom: 22 }}>
+          <div className="panel" style={{ textAlign: "center" }}>
+            <span
+              style={{ fontSize: 46, fontWeight: 800, color: "var(--violet)", lineHeight: 1 }}
+            >
+              {student._count.projects}
+            </span>
+            <div className="muted" style={{ marginTop: 10 }}>
+              Projects saved
+            </div>
+          </div>
+
+          <div className="panel" style={{ textAlign: "center" }}>
+            <span
+              style={{ fontSize: 46, fontWeight: 800, color: "var(--navy)", lineHeight: 1 }}
+            >
+              {student._count.hintEvents}
+            </span>
+            <div className="muted" style={{ marginTop: 10 }}>
+              Hints received
+            </div>
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="badge" style={{ marginBottom: 14 }}>
+            Current focus
+          </div>
+          <h2 style={{ color: "var(--navy)", marginBottom: 12 }}>{currentFocus}</h2>
+          <p style={{ lineHeight: 1.6, margin: 0 }}>
+            {student.displayName} is working on <strong>{currentFocus}</strong>. Every
+            hint the AI tutor offered was read and approved by their teacher before
+            {student.displayName} saw it.
+          </p>
+        </section>
+      </main>
+    </>
   );
 }

@@ -62,6 +62,7 @@ export const ModelName = {
   Project: 'Project',
   HintEvent: 'HintEvent',
   SkillMastery: 'SkillMastery',
+  StudentProgress: 'StudentProgress',
   Consent: 'Consent'
 } as const
 
@@ -204,6 +205,18 @@ export const SkillMasteryScalarFieldEnum = {
 } as const
 
 export type SkillMasteryScalarFieldEnum = (typeof SkillMasteryScalarFieldEnum)[keyof typeof SkillMasteryScalarFieldEnum]
+
+
+export const StudentProgressScalarFieldEnum = {
+  id: 'id',
+  completed: 'completed',
+  blocksUsed: 'blocksUsed',
+  updatedAt: 'updatedAt',
+  studentId: 'studentId',
+  lessonId: 'lessonId'
+} as const
+
+export type StudentProgressScalarFieldEnum = (typeof StudentProgressScalarFieldEnum)[keyof typeof StudentProgressScalarFieldEnum]
 
 
 export const ConsentScalarFieldEnum = {

@@ -97,6 +97,11 @@ export type HintEvent = Prisma.HintEventModel
  */
 export type SkillMastery = Prisma.SkillMasteryModel
 /**
+ * Model StudentProgress
+ * 
+ */
+export type StudentProgress = Prisma.StudentProgressModel
+/**
  * Model Consent
  * 
  */

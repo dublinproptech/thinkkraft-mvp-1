@@ -1,57 +1,31 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route"; 
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
+import { requireStudent } from "@/lib/session";
+import { upsertProgress } from "@/lib/db/progress";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+export const dynamic = "force-dynamic";
 
-export async function POST(request: Request) {
-  // 1. Get the identity securely from the server
-  const session = await getServerSession(authOptions);
+const Input = z.object({
+  lessonId: z.string().min(1, "lessonId is required"),
+  completed: z.boolean().default(false),
+  blocksUsed: z.number().int().min(0).default(0),
+});
 
-  // 2. Reject anyone who isn't logged in or isn't a student
-  if (!session || session.user?.role !== "STUDENT") {
-    return NextResponse.json({ error: "Unauthorized. Students only." }, { status: 401 });
+export async function POST(req: Request) {
+  const who = await requireStudent();
+  if (!who.ok) return who.response;
+
+  const body = await req.json().catch(() => null);
+  const parsed = Input.safeParse(body);
+  if (!parsed.success) {
+    return Response.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  try {
-    const body = await request.json();
-    const { lessonId, completed, blocksUsed } = body;
+  // Any studentId in the body is ignored; the session decides whose progress
+  // this is.
+  const progress = await upsertProgress({
+    studentId: who.studentId,
+    ...parsed.data,
+  });
 
-    if (!lessonId) {
-      return NextResponse.json({ error: "Missing lessonId." }, { status: 400 });
-    }
-
-    // 3. SECURE WRITE: Completely ignore any student ID sent from the frontend.
-    // Force Prisma to use the exact ID from the verified server session.
-    const secureStudentId = session.user.id;
-
-    // 4. Update or create the progress record
-    const progress = await prisma.studentProgress.upsert({
-      where: {
-        // Assuming a compound unique constraint on studentId and lessonId in schema.prisma
-        studentId_lessonId: { 
-          studentId: secureStudentId,
-          lessonId: lessonId,
-        }
-      },
-      update: {
-        completed,
-        blocksUsed, // Optional: tracking what they built
-      },
-      create: {
-        studentId: secureStudentId,
-        lessonId,
-        completed,
-        blocksUsed,
-      }
-    });
-
-    return NextResponse.json({ success: true, progress }, { status: 200 });
-  } catch (error) {
-    console.error("Error saving student progress:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
+  return Response.json({ progress });
 }

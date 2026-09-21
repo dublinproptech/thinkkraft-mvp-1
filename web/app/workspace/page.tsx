@@ -4,13 +4,17 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HintPanel from "./HintPanel";
+import AppBar from "../components/AppBar";
 
 function WorkspaceContent() {
   const { data: session, status } = useSession() || { data: null, status: "unauthenticated" };
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const studentId = session?.user?.id;
+  // The Student row id, not the User id. Every studentId foreign key points at
+  // this one. It is used here only to decide what to render: the API routes
+  // read it from the session themselves and ignore anything the page sends.
+  const studentId = session?.user?.studentId;
   const role = session?.user?.role;
   const lessonId = searchParams.get("lessonId") || ""; 
 
@@ -42,7 +46,7 @@ function WorkspaceContent() {
           const res = await fetch('/api/hints/proactive', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentId, lessonId })
+            body: JSON.stringify({ lessonId })
           });
           
           const data = await res.json();
@@ -101,7 +105,6 @@ function WorkspaceContent() {
 
     const form = new FormData();
     form.append("file", file);
-    form.append("studentId", studentId);
     form.append("lessonId", lessonId);
 
     const res = await fetch("/api/projects", {
@@ -110,43 +113,48 @@ function WorkspaceContent() {
     }).then((r) => r.json());
     
     if (res.error) {
-      setErr(res.error);
+      setErr(typeof res.error === "string" ? res.error : "That upload was rejected.");
       return;
     }
-    
+
     setMsg(`Saved. Project id: ${res.project.id}`);
     setSb3Ref(res.project.sb3Ref);
   }
 
   if (status === "loading") {
-    return <main className="wrap"><p>Loading workspace...</p></main>;
+    return (
+      <>
+        <AppBar />
+        <main className="shell"><p>Loading workspace...</p></main>
+      </>
+    );
   }
 
   if (!studentId) return null;
 
   return (
-    <main className="wrap">
-      {/* NEW: Floating Toast Notification */}
+    <>
+    <AppBar links={[{ href: "/dashboard", label: "My lessons" }]} />
+    <main className="shell">
       {toast && (
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          padding: '16px 24px',
-          backgroundColor: toast.type === 'success' ? '#10B981' : '#3B82F6',
-          color: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          fontWeight: 600,
-          zIndex: 9999,
-          transition: 'all 0.3s ease-in-out',
-          animation: 'slideIn 0.3s ease-out forwards'
-        }}>
+        <div
+          className="panel-flat"
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            maxWidth: 340,
+            background: toast.type === 'success' ? 'var(--mint)' : 'var(--sky)',
+            color: 'var(--navy)',
+            fontWeight: 800,
+            zIndex: 9999,
+            animation: 'slideIn 0.3s ease-out forwards',
+          }}
+        >
           {toast.message}
         </div>
       )}
 
-      {/* Inline animation styles for the toast */}
       <style>{`
         @keyframes slideIn {
           from { transform: translateY(100%); opacity: 0; }
@@ -158,31 +166,27 @@ function WorkspaceContent() {
         }
       `}</style>
 
-      <div className="brand">
-        <span className="mark">✦</span> ThinkKraft <small>.ai</small>
-      </div>
-      
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '24px' }}>
-        <span className="badge">Phase 6 · workspace</span>
-        
-        {/* NEW: Subtle Loader Indicator */}
-        {isAnalyzing && (
-          <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500, animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-            ⚡ AI is analyzing blocks...
-          </span>
-        )}
+      <div className="page-head">
+        <h1>Build your project</h1>
+        <p>
+          Lesson {lessonId || "not chosen"}
+          {isAnalyzing && (
+            <span
+              style={{
+                marginLeft: 10,
+                color: "var(--violet)",
+                animation: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              }}
+            >
+              · Milo is looking at your blocks
+            </span>
+          )}
+        </p>
       </div>
 
-      <h1 style={{ fontSize: 34, margin: "14px 0 6px", color: "var(--navy)" }}>
-        Build your project
-      </h1>
-      <p className="muted" style={{ fontSize: 15 }}>
-        Student {studentId} · lesson {lessonId || "?"}
-      </p>
-
-      <div className="card" style={{ marginTop: 10, padding: 0, overflow: 'hidden', border: '2px solid var(--line)' }}>
+      <div className="panel" style={{ padding: 0, overflow: 'hidden' }}>
         <iframe
-          ref={iframeRef} 
+          ref={iframeRef}
           src="/scratch-editor/index.html"
           width="100%"
           height="700px"
@@ -191,10 +195,13 @@ function WorkspaceContent() {
         />
       </div>
 
-      <div className="card" style={{ marginTop: 16 }}>
-        <h2 style={{ fontSize: 18, color: "var(--navy)" }}>Manual Upload (Backup)</h2>
-        <p className="muted" style={{ margin: "8px 0 12px" }}>
-          Use <b>File {'>'} Save to your computer</b> in the editor above, then upload the .sb3 file here.
+      <div className="panel" style={{ marginTop: 16 }}>
+        <h2 style={{ fontSize: 19, color: "var(--navy)", marginBottom: 6 }}>
+          Save your project
+        </h2>
+        <p className="muted" style={{ margin: "0 0 14px" }}>
+          Use <b>File {'>'} Save to your computer</b> in the editor above, then choose
+          that file here.
         </p>
         <input
           type="file"
@@ -202,17 +209,17 @@ function WorkspaceContent() {
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
         />
         <div style={{ marginTop: 14 }}>
-          <button className="btn btn-primary" onClick={save}>
+          <button className="btn-solid" onClick={save}>
             Save project
           </button>
         </div>
         {err && (
-          <p style={{ color: "var(--coral)", fontWeight: 700, marginTop: 14 }}>
+          <p className="notice notice-error" style={{ marginTop: 14 }}>
             {err}
           </p>
         )}
         {msg && (
-          <p style={{ color: "var(--navy)", fontWeight: 700, marginTop: 14 }}>
+          <p className="notice notice-ok" style={{ marginTop: 14 }}>
             {msg}
           </p>
         )}
@@ -222,12 +229,13 @@ function WorkspaceContent() {
         <HintPanel studentId={studentId} lessonId={lessonId} sb3Ref={sb3Ref} />
       )}
     </main>
+    </>
   );
 }
 
 export default function WorkspacePage() {
   return (
-    <Suspense fallback={<main className="wrap"><p>Loading workspace...</p></main>}>
+    <Suspense fallback={<main className="shell"><p>Loading workspace...</p></main>}>
       <WorkspaceContent />
     </Suspense>
   );

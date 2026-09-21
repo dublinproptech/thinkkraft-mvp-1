@@ -1,3 +1,5 @@
+import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getCourseWithLessons } from "@/lib/db/courses";
 
@@ -13,28 +15,47 @@ export default async function CoursePage({
   if (!course) notFound();
 
   return (
-    <main className="wrap">
-      <div className="brand">
-        <span className="mark">✦</span> ThinkKraft <small>.ai</small>
-      </div>
-      <span className="badge" style={{ marginTop: 24 }}>
-        Course
-      </span>
-      <h1 style={{ fontSize: 36, margin: "14px 0 6px", color: "var(--navy)" }}>
-        {course.title}
-      </h1>
-      <p className="muted" style={{ fontSize: 16 }}>
-        Ages {course.ageBand} · {course.lessons.length} lessons
-      </p>
+    <>
+      <header className="appbar">
+        <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+          <Image
+            src="/logo.png"
+            alt="ThinkKraft"
+            width={132}
+            height={44}
+            style={{ objectFit: "contain" }}
+          />
+        </Link>
+        <div className="appbar-links">
+          <Link href="/courses" className="btn-ghost btn-sm">
+            All courses
+          </Link>
+          <Link href="/register" className="btn-solid btn-sm">
+            Register
+          </Link>
+        </div>
+      </header>
 
-      <div className="grid" style={{ marginTop: 24 }}>
-        {course.lessons.map((l) => (
-          <div key={l.id} className="card">
-            <div className="badge">Lesson {l.orderNo}</div>
-            <p style={{ marginTop: 12, fontWeight: 700 }}>{l.goal}</p>
-          </div>
-        ))}
-      </div>
-    </main>
+      <main className="shell">
+        <div className="page-head">
+          <h1>{course.title}</h1>
+          <p>
+            Ages {course.ageBand} · {course.lessons.length} lesson
+            {course.lessons.length === 1 ? "" : "s"}
+          </p>
+        </div>
+
+        <div className="grid">
+          {course.lessons.map((l) => (
+            <div key={l.id} className="panel">
+              <div className="badge">Lesson {l.orderNo}</div>
+              <p style={{ marginTop: 12, marginBottom: 0, fontWeight: 700, lineHeight: 1.5 }}>
+                {l.goal}
+              </p>
+            </div>
+          ))}
+        </div>
+      </main>
+    </>
   );
 }
