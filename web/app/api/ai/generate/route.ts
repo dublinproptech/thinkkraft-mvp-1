@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   // Placeholder text, not a checked hint. Deterministic correctness lives in
   // ai-service/checker.py and reaches the app through /api/hints/request.
-  const hint = await createHint({
+  const { hint } = await createHint({
     studentId: who.studentId,
     lessonId: parsed.data.lessonId,
     diagnosis: "placeholder",

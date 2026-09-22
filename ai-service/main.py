@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from monitor import looks_stuck
 from governor import may_speak, record_nudge
 from checker import check
-from hints import build_hint, build_hint_for_proactive
+from hints import build_hint, build_hint_for_proactive, build_followup
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -84,6 +84,33 @@ async def activity(event: ActivityEvent):
     PROACTIVE[event.studentId].append(hint)
 
     return {"stuck": True, "spoke": True, "reason": verdict["reason"], "hint": hint}
+
+
+class FollowupRequest(BaseModel):
+    diagnosis: str
+    previousLevel: int
+    answer: str
+
+
+@app.post("/followup")
+async def followup(req: FollowupRequest):
+    """
+    A child answered a hint that asked them a question. What they get back is
+    the next rung of the same ladder, chosen here by deterministic code; their
+    answer only colours how it is worded. It is still a proposed hint, so a
+    teacher reads it before the child ever sees it.
+    """
+    template = build_followup(req.diagnosis, req.previousLevel)
+    if template is None:
+        return {"hint": None}
+
+    if not template["model"]:
+        return {"hint": {"level": template["level"], "text": template["text"]}}
+
+    ladder = LADDER[req.diagnosis]
+    worded = rephrase(template["text"], template["level"], req.answer)
+    safe = guardrail(worded, template["level"], ladder)
+    return {"hint": {"level": template["level"], "text": safe, "template": template["text"]}}
 
 
 @app.get("/proactive/{student_id}")

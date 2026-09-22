@@ -6,22 +6,250 @@
     <meta name="google" value="notranslate">
     <link rel="shortcut icon" href="static/favicon.ico">
     <title>Scratch 3.0 GUI</title>
-    
-    <!-- Added: Two-way postMessage communication bridge -->
+
+    <!--
+      ThinkKraft activity bridge.
+
+      This is a static scratch-gui build, so there is no source to hook into:
+      this script runs inside the editor page, where the VM is in scope, and
+      reports what the child is doing to the parent workspace page.
+
+      The VM is not on window. It is reachable because React 16 hangs
+      _reactRootContainer off the element it rendered into, and scratch-gui
+      passes the vm down as a prop, so walking the fiber tree finds it
+      (measured: depth 25, ~550 fibers, well under a second).
+
+      Emits exactly the four kinds the monitor understands:
+        block_added, block_deleted, ran_project, idle_tick
+    -->
     <script>
-      // Listen for messages coming from your Next.js parent window
-      window.addEventListener("message", (event) => {
-        
-        // 1. Listen for a "SAVE_REQUEST" from the parent Next.js button
-        if (event.data && event.data.type === "REQUEST_SAVE") {
-          console.log("Iframe received save request from Next.js");
-          
-          // 2. Send data back up to Next.js
-          // (Note: To send the actual .sb3 file, you will pass the project blob here)
-          window.parent.postMessage({
+      (function () {
+        "use strict";
+
+        var SOURCE = "thinkkraft-editor";
+        var PARENT_ORIGIN = window.location.origin; // the editor is served by the web core
+        var POLL_MS = 400;          // how often to look for the VM while the GUI boots
+        var POLL_LIMIT = 150;       // give up after ~60s
+        var SETTLE_MS = 2000;       // ignore the load-time block burst
+        var DEFAULT_IDLE_MS = 30000;
+
+        // A shorter idle window makes the proactive path demonstrable without
+        // waiting 90 seconds. Read from the iframe URL, clamped to something sane.
+        var idleMs = DEFAULT_IDLE_MS;
+        try {
+          var q = Number(new URLSearchParams(window.location.search).get("idleMs"));
+          if (q >= 2000 && q <= 300000) idleMs = q;
+        } catch (e) {}
+
+        var MOVED_THROTTLE_MS = 2000; // a drag or a run of keystrokes is one signal
+
+        var lastEventAt = Date.now();
+        var lastMovedAt = 0;
+        var counts = {
+          block_added: 0,
+          block_deleted: 0,
+          block_moved: 0,
+          ran_project: 0,
+          idle_tick: 0
+        };
+
+        function send(kind) {
+          if (kind !== "idle_tick") lastEventAt = Date.now();
+          counts[kind] = (counts[kind] || 0) + 1;
+          try {
+            // Same origin only. Never "*": these messages describe a child's session.
+            window.parent.postMessage({ source: SOURCE, kind: kind }, PARENT_ORIGIN);
+          } catch (e) {
+            // A closed or cross-origin parent is not worth breaking the editor over.
+          }
+        }
+
+        function isVm(v) {
+          return (
+            v &&
+            typeof v === "object" &&
+            typeof v.on === "function" &&
+            typeof v.greenFlag === "function" &&
+            v.runtime &&
+            typeof v.runtime === "object"
+          );
+        }
+
+        // Walk the React 16 fiber tree under each root looking for the vm prop.
+        function findVm() {
+          var divs = document.querySelectorAll("body > div");
+          for (var i = 0; i < divs.length; i++) {
+            var container = divs[i]._reactRootContainer;
+            if (!container) continue;
+            var internal = container._internalRoot || container;
+            if (!internal || !internal.current) continue;
+
+            var stack = [internal.current];
+            var seen = 0;
+            while (stack.length && seen < 40000) {
+              var node = stack.pop();
+              if (!node) continue;
+              seen++;
+              var bags = [node.memoizedProps, node.stateNode && node.stateNode.props];
+              for (var b = 0; b < bags.length; b++) {
+                var bag = bags[b];
+                if (bag && typeof bag === "object") {
+                  try {
+                    if (isVm(bag.vm)) return bag.vm;
+                  } catch (e) {}
+                }
+              }
+              if (node.child) stack.push(node.child);
+              if (node.sibling) stack.push(node.sibling);
+            }
+          }
+          return null;
+        }
+
+        // The VM's own block table is the source of truth for what exists.
+        function countBlocks(vm) {
+          var n = 0;
+          var targets = vm.runtime && vm.runtime.targets;
+          if (!targets) return 0;
+          for (var i = 0; i < targets.length; i++) {
+            var t = targets[i];
+            var blocks = t && t.blocks && t.blocks._blocks;
+            if (blocks) n += Object.keys(blocks).length;
+          }
+          return n;
+        }
+
+        function attach(vm) {
+          var attachedAt = Date.now();
+          var lastCount = countBlocks(vm);
+
+          // PROJECT_CHANGED covers adds, deletes and everything else. The count
+          // delta says which: up is an add, down is a delete, and unchanged
+          // means the child moved a block or edited a value inside one.
+          vm.on("PROJECT_CHANGED", function () {
+            var n = countBlocks(vm);
+            var delta = n - lastCount;
+            lastCount = n;
+            // Loading a project creates every block at once. That is not the
+            // child building something, so ignore the first couple of seconds.
+            if (Date.now() - attachedAt < SETTLE_MS) return;
+            if (delta > 0) {
+              send("block_added");
+            } else if (delta < 0) {
+              send("block_deleted");
+            } else if (n > 0) {
+              // Nothing was added or removed, so the child moved a block or
+              // edited a value in one. Guarded on n > 0 because an empty
+              // project has nothing to move: the default project settling
+              // after load also lands here, and reporting that as an edit
+              // would hide a genuinely stuck child from the monitor.
+              //
+              // Editing a value can fire per keystroke, so collapse a burst of
+              // these into one signal rather than flooding the activity buffer.
+              var now = Date.now();
+              if (now - lastMovedAt >= MOVED_THROTTLE_MS) {
+                lastMovedAt = now;
+                send("block_moved");
+              } else {
+                // Still counts as the child working, for the idle timer.
+                lastEventAt = now;
+              }
+            }
+          });
+
+          // Green flag. PROJECT_START is the run the child actually asked for,
+          // unlike PROJECT_RUN_START which also fires when a single stack is clicked.
+          vm.on("PROJECT_START", function () {
+            send("ran_project");
+          });
+
+          // While nothing else is happening, say so on a fixed cadence. The
+          // monitor treats a run of trailing idle ticks as stuck.
+          setInterval(function () {
+            if (Date.now() - lastEventAt >= idleMs) send("idle_tick");
+          }, idleMs);
+
+          window.__thinkkraftBridge.ready = true;
+          window.__thinkkraftBridge.vm = vm;
+        }
+
+        // Small surface for the parent page and for automated checks to read.
+        window.__thinkkraftBridge = {
+          ready: false,
+          vm: null,
+          idleMs: idleMs,
+          counts: counts,
+          blocks: function () {
+            return window.__thinkkraftBridge.vm
+              ? countBlocks(window.__thinkkraftBridge.vm)
+              : null;
+          },
+          // Lets the workspace page confirm the bridge is alive.
+          ping: function () {
+            send("idle_tick");
+          }
+        };
+
+        var tries = 0;
+        var timer = setInterval(function () {
+          tries++;
+          var vm = null;
+          try {
+            vm = findVm();
+          } catch (e) {}
+          if (vm) {
+            clearInterval(timer);
+            attach(vm);
+          } else if (tries >= POLL_LIMIT) {
+            clearInterval(timer);
+            window.__thinkkraftBridge.error = "vm not found";
+          }
+        }, POLL_MS);
+      })();
+    </script>
+
+    <!-- Two-way postMessage bridge for saving, from the workspace page. -->
+    <script>
+      window.addEventListener("message", function (event) {
+        // Only listen to the page that embedded us.
+        if (event.origin !== window.location.origin) return;
+        if (!event.data) return;
+
+        var reply = function (msg) {
+          window.parent.postMessage(msg, window.location.origin);
+        };
+
+        // A heartbeat the workspace uses to run the proactive check.
+        if (event.data.type === "REQUEST_SAVE") {
+          var b = window.__thinkkraftBridge;
+          reply({
             type: "PROJECT_SAVED",
-            payload: { message: "Scratch data bridge is working!" }
-          }, "*"); 
+            payload: { ready: !!(b && b.ready), blocks: b ? b.blocks() : null }
+          });
+          return;
+        }
+
+        // Hand the parent the child's actual project.
+        //
+        // The VM can zip itself, which is what File > Save to your computer
+        // does. That means "check my work" can look at what is on screen right
+        // now, instead of asking a ten-year-old to export a file and find it
+        // again. The bytes go to the parent page, same origin, and nowhere else.
+        if (event.data.type === "REQUEST_SB3") {
+          var id = event.data.requestId;
+          var vm = window.__thinkkraftBridge && window.__thinkkraftBridge.vm;
+          if (!vm || typeof vm.saveProjectSb3 !== "function") {
+            reply({ type: "PROJECT_SB3", requestId: id, error: "editor-not-ready" });
+            return;
+          }
+          vm.saveProjectSb3()
+            .then(function (blob) { return blob.arrayBuffer(); })
+            .then(function (buffer) {
+              reply({ type: "PROJECT_SB3", requestId: id, buffer: buffer });
+            })
+            .catch(function (e) {
+              reply({ type: "PROJECT_SB3", requestId: id, error: String(e) });
+            });
         }
       });
     </script>

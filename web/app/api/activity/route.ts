@@ -7,9 +7,18 @@ export const dynamic = "force-dynamic";
 // Activity feeds the stuck-detector. studentId comes from the session so that
 // one child's events cannot be attributed to another, which would skew both the
 // monitor and the governor's per-student cooldown.
+// These five are the whole vocabulary the monitor understands. block_moved is
+// a change that neither adds nor removes a block, such as dragging one or
+// editing a value inside it: quieter than the others, but still the child working.
 const Input = z.object({
   lessonId: z.string().min(1),
-  kind: z.enum(["block_added", "block_deleted", "ran_project", "idle_tick"]),
+  kind: z.enum([
+    "block_added",
+    "block_deleted",
+    "block_moved",
+    "ran_project",
+    "idle_tick",
+  ]),
 });
 
 export async function POST(req: Request) {

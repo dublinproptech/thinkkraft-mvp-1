@@ -1538,7 +1538,10 @@ export const HintEventScalarFieldEnum = {
   createdAt: 'createdAt',
   studentId: 'studentId',
   lessonId: 'lessonId',
-  approvedById: 'approvedById'
+  approvedById: 'approvedById',
+  childAnswer: 'childAnswer',
+  answeredHintId: 'answeredHintId',
+  dismissedAt: 'dismissedAt'
 } as const
 
 export type HintEventScalarFieldEnum = (typeof HintEventScalarFieldEnum)[keyof typeof HintEventScalarFieldEnum]

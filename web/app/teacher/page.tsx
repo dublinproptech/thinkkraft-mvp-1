@@ -15,6 +15,9 @@ type PendingHint = {
   text: string;
   createdAt: string;
   student: { displayName: string } | null;
+  // Set when this hint is Milo's reply to one the child answered.
+  childAnswer: string | null;
+  answeredHint: { text: string; level: number } | null;
 };
 
 export default function TeacherDashboard() {
@@ -107,7 +110,7 @@ export default function TeacherDashboard() {
       </div>
 
       {error && (
-        <p className="notice notice-error" style={{ marginBottom: 16 }}>
+        <p className="notice notice-error queue-error">
           {error}
         </p>
       )}
@@ -118,66 +121,78 @@ export default function TeacherDashboard() {
           <p>No hints are waiting for review.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div className="queue">
           {pending.map((hint) => {
             const proactive = hint.diagnosis.startsWith("proactive:");
             return (
               <div
                 key={hint.id}
-                className="panel"
                 // Proactive nudges and hints the child asked for read very
                 // differently to a teacher, so mark which is which.
-                style={{ borderLeftWidth: 10, borderLeftColor: proactive ? "var(--violet)" : "var(--sky)" }}
+                className={
+                  proactive ? "panel queue-card queue-proactive" : "panel queue-card"
+                }
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    gap: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div style={{ flex: "1 1 320px" }}>
-                    <h3 style={{ margin: "0 0 8px", color: "var(--navy)" }}>
+                <div className="queue-row">
+                  <div className="queue-body">
+                    <h3 className="queue-name">
                       {hint.student?.displayName ?? "Unknown student"}
                     </h3>
-                    <p className="muted" style={{ margin: "0 0 4px", fontSize: 14 }}>
+                    <p className="muted queue-meta">
                       <b>Lesson:</b> {hint.lessonId} · <b>Level:</b> {hint.level} ·{" "}
-                      <b>{proactive ? "Proactive" : "Requested"}</b>
+                      <b>
+                        {hint.childAnswer
+                          ? "Reply"
+                          : proactive
+                            ? "Proactive"
+                            : "Requested"}
+                      </b>
                     </p>
-                    <p className="muted" style={{ margin: "0 0 16px", fontSize: 14 }}>
+                    <p className="muted queue-meta queue-meta-last">
                       <b>Diagnosis:</b> {hint.diagnosis.replace("proactive:", "")}
                     </p>
 
-                    <div
-                      style={{
-                        background: "var(--cream)",
-                        border: "2px solid var(--line)",
-                        padding: "12px 14px",
-                        borderRadius: 10,
-                        color: "var(--ink)",
-                        lineHeight: 1.5,
-                      }}
-                    >
+                    {/* A follow-up is approved with the exchange in view: what
+                        Milo asked, what the child wrote back, and only then
+                        what he proposes saying. Reading the reply on its own
+                        would mean approving half a conversation. */}
+                    {hint.childAnswer && (
+                      <div className="thread">
+                        {hint.answeredHint && (
+                          <div className="thread-turn">
+                            <span className="thread-who">Milo asked</span>
+                            <p className="thread-text">{hint.answeredHint.text}</p>
+                          </div>
+                        )}
+                        <div className="thread-turn thread-child">
+                          <span className="thread-who">
+                            {hint.student?.displayName ?? "The child"} answered
+                          </span>
+                          <p className="thread-text">{hint.childAnswer}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="queue-text">
+                      {hint.childAnswer && (
+                        <span className="thread-who">Milo would say</span>
+                      )}
                       {hint.text}
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
+                  <div className="queue-actions">
                     <button
                       onClick={() => decide(hint.id, "approve")}
                       disabled={busyId === hint.id}
-                      className="btn-solid btn-sm"
-                      style={{ minWidth: 110 }}
+                      className="btn-solid btn-sm queue-btn"
                     >
                       {busyId === hint.id ? "Saving..." : "Approve"}
                     </button>
                     <button
                       onClick={() => decide(hint.id, "reject")}
                       disabled={busyId === hint.id}
-                      className="btn-danger btn-sm"
-                      style={{ minWidth: 110 }}
+                      className="btn-danger btn-sm queue-btn"
                     >
                       Reject
                     </button>
