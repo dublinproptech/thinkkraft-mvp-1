@@ -49,6 +49,33 @@ PROACTIVE_HINTS = {
     "repeated_runs": "I noticed it keeps doing the same thing. What is one small change you could try?",
 }
 
+# When a hint ends in a question, the child can answer it, and the answer earns
+# them the next rung of the same ladder. A proactive nudge has no ladder: it was
+# sent because the child went quiet, not because anything was checked. So the
+# honest follow-up is to go and look at their blocks properly.
+PROACTIVE_FOLLOWUP = (
+    "Thanks for telling me. Press 'Check my work' and I will look at your "
+    "blocks properly, then I can give you a tip that actually fits."
+)
+
+
+def next_level(level: int) -> int:
+    # Answering moves a child one rung up, and never past the last one.
+    return min(max(level, 1) + 1, 3)
+
+
+def build_followup(diagnosis: str, previous_level: int) -> dict | None:
+    """The template a reply earns. Deterministic: the model only rewords it."""
+    if diagnosis.startswith("proactive:"):
+        return {"level": 1, "text": PROACTIVE_FOLLOWUP, "model": False}
+
+    ladder = LADDER.get(diagnosis)
+    if ladder is None:
+        return None
+
+    level = next_level(previous_level)
+    return {"level": level, "text": ladder[level], "model": True}
+
 
 def build_hint_for_proactive(lesson_id: str, reason: str) -> dict:
     text = PROACTIVE_HINTS.get(reason, "Want a hand with this bit?")
@@ -77,4 +104,11 @@ def guardrail(text: str, level: int, ladder: dict) -> str:
     # A level-1 nudge must never contain the full solution.
     if level == 1 and any(g in text.lower() for g in GIVEAWAY):
         return ladder[1]  # already the safe nudge, but this enforces it if edited later
+
+    # A level-2 clue must not quietly become the level-3 worked step. This
+    # matters most on the follow-up path, where a child's own words reach the
+    # model: "just tell me the answer" must not be able to fetch one.
+    if level == 2 and ladder[3].lower() in text.lower():
+        return ladder[2]
+
     return text

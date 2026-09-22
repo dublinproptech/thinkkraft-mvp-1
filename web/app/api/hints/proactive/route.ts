@@ -24,16 +24,18 @@ export async function POST(req: Request) {
 
   const r = await fetch(`${AI}/proactive/${who.studentId}`).then((x) => x.json());
 
+  // A nudge the child already has waiting is not filed a second time, so
+  // "created" holds only what is genuinely new for the teacher to look at.
   const created = [];
   for (const h of r.hints ?? []) {
-    const saved = await createHint({
+    const { hint, duplicate } = await createHint({
       studentId: who.studentId,
       lessonId: parsed.data.lessonId,
       diagnosis: `proactive:${h.reason}`,
       level: h.level,
       text: h.text,
     });
-    created.push(saved.id);
+    if (!duplicate) created.push(hint.id);
   }
   return Response.json({ created });
 }

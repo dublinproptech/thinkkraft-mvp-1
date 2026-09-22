@@ -1,5 +1,7 @@
 import time
 
+from monitor import EDIT_KINDS
+
 COOLDOWN_SECONDS = 120  # no proactive nudge within this long of the last one
 SESSION_CAP = 5  # at most this many proactive nudges per student per session
 PROGRESS_QUIET_SECONDS = 15  # if the child edited within this window, stay quiet
@@ -22,8 +24,10 @@ def may_speak(student_id: str, events: list) -> dict:
         return {"allow": False, "reason": "cap_reached"}
 
     # 3. In-flow suppression: if they just edited, they're working; leave them be.
+    # Nudging a child mid-drag is exactly the interruption this is here to stop,
+    # so a move counts the same as an add or a delete.
     for e in reversed(events):
-        if e["kind"] in ("block_added", "block_deleted"):
+        if e["kind"] in EDIT_KINDS:
             if now - e["at"] < PROGRESS_QUIET_SECONDS:
                 return {"allow": False, "reason": "in_flow"}
             break

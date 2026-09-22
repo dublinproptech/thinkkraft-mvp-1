@@ -44,6 +44,9 @@ export type HintEventMinAggregateOutputType = {
   studentId: string | null
   lessonId: string | null
   approvedById: string | null
+  childAnswer: string | null
+  answeredHintId: string | null
+  dismissedAt: Date | null
 }
 
 export type HintEventMaxAggregateOutputType = {
@@ -56,6 +59,9 @@ export type HintEventMaxAggregateOutputType = {
   studentId: string | null
   lessonId: string | null
   approvedById: string | null
+  childAnswer: string | null
+  answeredHintId: string | null
+  dismissedAt: Date | null
 }
 
 export type HintEventCountAggregateOutputType = {
@@ -68,6 +74,9 @@ export type HintEventCountAggregateOutputType = {
   studentId: number
   lessonId: number
   approvedById: number
+  childAnswer: number
+  answeredHintId: number
+  dismissedAt: number
   _all: number
 }
 
@@ -90,6 +99,9 @@ export type HintEventMinAggregateInputType = {
   studentId?: true
   lessonId?: true
   approvedById?: true
+  childAnswer?: true
+  answeredHintId?: true
+  dismissedAt?: true
 }
 
 export type HintEventMaxAggregateInputType = {
@@ -102,6 +114,9 @@ export type HintEventMaxAggregateInputType = {
   studentId?: true
   lessonId?: true
   approvedById?: true
+  childAnswer?: true
+  answeredHintId?: true
+  dismissedAt?: true
 }
 
 export type HintEventCountAggregateInputType = {
@@ -114,6 +129,9 @@ export type HintEventCountAggregateInputType = {
   studentId?: true
   lessonId?: true
   approvedById?: true
+  childAnswer?: true
+  answeredHintId?: true
+  dismissedAt?: true
   _all?: true
 }
 
@@ -213,6 +231,9 @@ export type HintEventGroupByOutputType = {
   studentId: string
   lessonId: string
   approvedById: string | null
+  childAnswer: string | null
+  answeredHintId: string | null
+  dismissedAt: Date | null
   _count: HintEventCountAggregateOutputType | null
   _avg: HintEventAvgAggregateOutputType | null
   _sum: HintEventSumAggregateOutputType | null
@@ -248,9 +269,14 @@ export type HintEventWhereInput = {
   studentId?: Prisma.StringFilter<"HintEvent"> | string
   lessonId?: Prisma.StringFilter<"HintEvent"> | string
   approvedById?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  childAnswer?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  answeredHintId?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  dismissedAt?: Prisma.DateTimeNullableFilter<"HintEvent"> | Date | string | null
   student?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
   lesson?: Prisma.XOR<Prisma.LessonScalarRelationFilter, Prisma.LessonWhereInput>
   approvedBy?: Prisma.XOR<Prisma.TeacherNullableScalarRelationFilter, Prisma.TeacherWhereInput> | null
+  answeredHint?: Prisma.XOR<Prisma.HintEventNullableScalarRelationFilter, Prisma.HintEventWhereInput> | null
+  replies?: Prisma.HintEventListRelationFilter
 }
 
 export type HintEventOrderByWithRelationInput = {
@@ -263,9 +289,14 @@ export type HintEventOrderByWithRelationInput = {
   studentId?: Prisma.SortOrder
   lessonId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  childAnswer?: Prisma.SortOrderInput | Prisma.SortOrder
+  answeredHintId?: Prisma.SortOrderInput | Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   student?: Prisma.StudentOrderByWithRelationInput
   lesson?: Prisma.LessonOrderByWithRelationInput
   approvedBy?: Prisma.TeacherOrderByWithRelationInput
+  answeredHint?: Prisma.HintEventOrderByWithRelationInput
+  replies?: Prisma.HintEventOrderByRelationAggregateInput
 }
 
 export type HintEventWhereUniqueInput = Prisma.AtLeast<{
@@ -281,9 +312,14 @@ export type HintEventWhereUniqueInput = Prisma.AtLeast<{
   studentId?: Prisma.StringFilter<"HintEvent"> | string
   lessonId?: Prisma.StringFilter<"HintEvent"> | string
   approvedById?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  childAnswer?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  answeredHintId?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  dismissedAt?: Prisma.DateTimeNullableFilter<"HintEvent"> | Date | string | null
   student?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
   lesson?: Prisma.XOR<Prisma.LessonScalarRelationFilter, Prisma.LessonWhereInput>
   approvedBy?: Prisma.XOR<Prisma.TeacherNullableScalarRelationFilter, Prisma.TeacherWhereInput> | null
+  answeredHint?: Prisma.XOR<Prisma.HintEventNullableScalarRelationFilter, Prisma.HintEventWhereInput> | null
+  replies?: Prisma.HintEventListRelationFilter
 }, "id">
 
 export type HintEventOrderByWithAggregationInput = {
@@ -296,6 +332,9 @@ export type HintEventOrderByWithAggregationInput = {
   studentId?: Prisma.SortOrder
   lessonId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  childAnswer?: Prisma.SortOrderInput | Prisma.SortOrder
+  answeredHintId?: Prisma.SortOrderInput | Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.HintEventCountOrderByAggregateInput
   _avg?: Prisma.HintEventAvgOrderByAggregateInput
   _max?: Prisma.HintEventMaxOrderByAggregateInput
@@ -316,6 +355,9 @@ export type HintEventScalarWhereWithAggregatesInput = {
   studentId?: Prisma.StringWithAggregatesFilter<"HintEvent"> | string
   lessonId?: Prisma.StringWithAggregatesFilter<"HintEvent"> | string
   approvedById?: Prisma.StringNullableWithAggregatesFilter<"HintEvent"> | string | null
+  childAnswer?: Prisma.StringNullableWithAggregatesFilter<"HintEvent"> | string | null
+  answeredHintId?: Prisma.StringNullableWithAggregatesFilter<"HintEvent"> | string | null
+  dismissedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"HintEvent"> | Date | string | null
 }
 
 export type HintEventCreateInput = {
@@ -325,9 +367,13 @@ export type HintEventCreateInput = {
   status?: $Enums.HintStatus
   text: string
   createdAt?: Date | string
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
   student: Prisma.StudentCreateNestedOneWithoutHintEventsInput
   lesson: Prisma.LessonCreateNestedOneWithoutHintEventsInput
   approvedBy?: Prisma.TeacherCreateNestedOneWithoutApprovedHintsInput
+  answeredHint?: Prisma.HintEventCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.HintEventCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventUncheckedCreateInput = {
@@ -340,6 +386,10 @@ export type HintEventUncheckedCreateInput = {
   studentId: string
   lessonId: string
   approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
+  replies?: Prisma.HintEventUncheckedCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventUpdateInput = {
@@ -349,9 +399,13 @@ export type HintEventUpdateInput = {
   status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
   text?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   student?: Prisma.StudentUpdateOneRequiredWithoutHintEventsNestedInput
   lesson?: Prisma.LessonUpdateOneRequiredWithoutHintEventsNestedInput
   approvedBy?: Prisma.TeacherUpdateOneWithoutApprovedHintsNestedInput
+  answeredHint?: Prisma.HintEventUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.HintEventUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateInput = {
@@ -364,6 +418,10 @@ export type HintEventUncheckedUpdateInput = {
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   lessonId?: Prisma.StringFieldUpdateOperationsInput | string
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replies?: Prisma.HintEventUncheckedUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventCreateManyInput = {
@@ -376,6 +434,9 @@ export type HintEventCreateManyInput = {
   studentId: string
   lessonId: string
   approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
 }
 
 export type HintEventUpdateManyMutationInput = {
@@ -385,6 +446,8 @@ export type HintEventUpdateManyMutationInput = {
   status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
   text?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type HintEventUncheckedUpdateManyInput = {
@@ -397,6 +460,9 @@ export type HintEventUncheckedUpdateManyInput = {
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   lessonId?: Prisma.StringFieldUpdateOperationsInput | string
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type HintEventListRelationFilter = {
@@ -409,6 +475,11 @@ export type HintEventOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type HintEventNullableScalarRelationFilter = {
+  is?: Prisma.HintEventWhereInput | null
+  isNot?: Prisma.HintEventWhereInput | null
+}
+
 export type HintEventCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   diagnosis?: Prisma.SortOrder
@@ -419,6 +490,9 @@ export type HintEventCountOrderByAggregateInput = {
   studentId?: Prisma.SortOrder
   lessonId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
+  childAnswer?: Prisma.SortOrder
+  answeredHintId?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrder
 }
 
 export type HintEventAvgOrderByAggregateInput = {
@@ -435,6 +509,9 @@ export type HintEventMaxOrderByAggregateInput = {
   studentId?: Prisma.SortOrder
   lessonId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
+  childAnswer?: Prisma.SortOrder
+  answeredHintId?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrder
 }
 
 export type HintEventMinOrderByAggregateInput = {
@@ -447,6 +524,9 @@ export type HintEventMinOrderByAggregateInput = {
   studentId?: Prisma.SortOrder
   lessonId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
+  childAnswer?: Prisma.SortOrder
+  answeredHintId?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrder
 }
 
 export type HintEventSumOrderByAggregateInput = {
@@ -579,8 +659,70 @@ export type HintEventUncheckedUpdateManyWithoutLessonNestedInput = {
   deleteMany?: Prisma.HintEventScalarWhereInput | Prisma.HintEventScalarWhereInput[]
 }
 
+export type HintEventCreateNestedOneWithoutRepliesInput = {
+  create?: Prisma.XOR<Prisma.HintEventCreateWithoutRepliesInput, Prisma.HintEventUncheckedCreateWithoutRepliesInput>
+  connectOrCreate?: Prisma.HintEventCreateOrConnectWithoutRepliesInput
+  connect?: Prisma.HintEventWhereUniqueInput
+}
+
+export type HintEventCreateNestedManyWithoutAnsweredHintInput = {
+  create?: Prisma.XOR<Prisma.HintEventCreateWithoutAnsweredHintInput, Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput> | Prisma.HintEventCreateWithoutAnsweredHintInput[] | Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput[]
+  connectOrCreate?: Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput | Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput[]
+  createMany?: Prisma.HintEventCreateManyAnsweredHintInputEnvelope
+  connect?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+}
+
+export type HintEventUncheckedCreateNestedManyWithoutAnsweredHintInput = {
+  create?: Prisma.XOR<Prisma.HintEventCreateWithoutAnsweredHintInput, Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput> | Prisma.HintEventCreateWithoutAnsweredHintInput[] | Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput[]
+  connectOrCreate?: Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput | Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput[]
+  createMany?: Prisma.HintEventCreateManyAnsweredHintInputEnvelope
+  connect?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+}
+
 export type EnumHintStatusFieldUpdateOperationsInput = {
   set?: $Enums.HintStatus
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type HintEventUpdateOneWithoutRepliesNestedInput = {
+  create?: Prisma.XOR<Prisma.HintEventCreateWithoutRepliesInput, Prisma.HintEventUncheckedCreateWithoutRepliesInput>
+  connectOrCreate?: Prisma.HintEventCreateOrConnectWithoutRepliesInput
+  upsert?: Prisma.HintEventUpsertWithoutRepliesInput
+  disconnect?: Prisma.HintEventWhereInput | boolean
+  delete?: Prisma.HintEventWhereInput | boolean
+  connect?: Prisma.HintEventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.HintEventUpdateToOneWithWhereWithoutRepliesInput, Prisma.HintEventUpdateWithoutRepliesInput>, Prisma.HintEventUncheckedUpdateWithoutRepliesInput>
+}
+
+export type HintEventUpdateManyWithoutAnsweredHintNestedInput = {
+  create?: Prisma.XOR<Prisma.HintEventCreateWithoutAnsweredHintInput, Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput> | Prisma.HintEventCreateWithoutAnsweredHintInput[] | Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput[]
+  connectOrCreate?: Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput | Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput[]
+  upsert?: Prisma.HintEventUpsertWithWhereUniqueWithoutAnsweredHintInput | Prisma.HintEventUpsertWithWhereUniqueWithoutAnsweredHintInput[]
+  createMany?: Prisma.HintEventCreateManyAnsweredHintInputEnvelope
+  set?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  disconnect?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  delete?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  connect?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  update?: Prisma.HintEventUpdateWithWhereUniqueWithoutAnsweredHintInput | Prisma.HintEventUpdateWithWhereUniqueWithoutAnsweredHintInput[]
+  updateMany?: Prisma.HintEventUpdateManyWithWhereWithoutAnsweredHintInput | Prisma.HintEventUpdateManyWithWhereWithoutAnsweredHintInput[]
+  deleteMany?: Prisma.HintEventScalarWhereInput | Prisma.HintEventScalarWhereInput[]
+}
+
+export type HintEventUncheckedUpdateManyWithoutAnsweredHintNestedInput = {
+  create?: Prisma.XOR<Prisma.HintEventCreateWithoutAnsweredHintInput, Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput> | Prisma.HintEventCreateWithoutAnsweredHintInput[] | Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput[]
+  connectOrCreate?: Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput | Prisma.HintEventCreateOrConnectWithoutAnsweredHintInput[]
+  upsert?: Prisma.HintEventUpsertWithWhereUniqueWithoutAnsweredHintInput | Prisma.HintEventUpsertWithWhereUniqueWithoutAnsweredHintInput[]
+  createMany?: Prisma.HintEventCreateManyAnsweredHintInputEnvelope
+  set?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  disconnect?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  delete?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  connect?: Prisma.HintEventWhereUniqueInput | Prisma.HintEventWhereUniqueInput[]
+  update?: Prisma.HintEventUpdateWithWhereUniqueWithoutAnsweredHintInput | Prisma.HintEventUpdateWithWhereUniqueWithoutAnsweredHintInput[]
+  updateMany?: Prisma.HintEventUpdateManyWithWhereWithoutAnsweredHintInput | Prisma.HintEventUpdateManyWithWhereWithoutAnsweredHintInput[]
+  deleteMany?: Prisma.HintEventScalarWhereInput | Prisma.HintEventScalarWhereInput[]
 }
 
 export type HintEventCreateWithoutStudentInput = {
@@ -590,8 +732,12 @@ export type HintEventCreateWithoutStudentInput = {
   status?: $Enums.HintStatus
   text: string
   createdAt?: Date | string
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
   lesson: Prisma.LessonCreateNestedOneWithoutHintEventsInput
   approvedBy?: Prisma.TeacherCreateNestedOneWithoutApprovedHintsInput
+  answeredHint?: Prisma.HintEventCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.HintEventCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventUncheckedCreateWithoutStudentInput = {
@@ -603,6 +749,10 @@ export type HintEventUncheckedCreateWithoutStudentInput = {
   createdAt?: Date | string
   lessonId: string
   approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
+  replies?: Prisma.HintEventUncheckedCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventCreateOrConnectWithoutStudentInput = {
@@ -644,6 +794,9 @@ export type HintEventScalarWhereInput = {
   studentId?: Prisma.StringFilter<"HintEvent"> | string
   lessonId?: Prisma.StringFilter<"HintEvent"> | string
   approvedById?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  childAnswer?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  answeredHintId?: Prisma.StringNullableFilter<"HintEvent"> | string | null
+  dismissedAt?: Prisma.DateTimeNullableFilter<"HintEvent"> | Date | string | null
 }
 
 export type HintEventCreateWithoutApprovedByInput = {
@@ -653,8 +806,12 @@ export type HintEventCreateWithoutApprovedByInput = {
   status?: $Enums.HintStatus
   text: string
   createdAt?: Date | string
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
   student: Prisma.StudentCreateNestedOneWithoutHintEventsInput
   lesson: Prisma.LessonCreateNestedOneWithoutHintEventsInput
+  answeredHint?: Prisma.HintEventCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.HintEventCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventUncheckedCreateWithoutApprovedByInput = {
@@ -666,6 +823,10 @@ export type HintEventUncheckedCreateWithoutApprovedByInput = {
   createdAt?: Date | string
   studentId: string
   lessonId: string
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
+  replies?: Prisma.HintEventUncheckedCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventCreateOrConnectWithoutApprovedByInput = {
@@ -701,8 +862,12 @@ export type HintEventCreateWithoutLessonInput = {
   status?: $Enums.HintStatus
   text: string
   createdAt?: Date | string
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
   student: Prisma.StudentCreateNestedOneWithoutHintEventsInput
   approvedBy?: Prisma.TeacherCreateNestedOneWithoutApprovedHintsInput
+  answeredHint?: Prisma.HintEventCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.HintEventCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventUncheckedCreateWithoutLessonInput = {
@@ -714,6 +879,10 @@ export type HintEventUncheckedCreateWithoutLessonInput = {
   createdAt?: Date | string
   studentId: string
   approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
+  replies?: Prisma.HintEventUncheckedCreateNestedManyWithoutAnsweredHintInput
 }
 
 export type HintEventCreateOrConnectWithoutLessonInput = {
@@ -742,6 +911,138 @@ export type HintEventUpdateManyWithWhereWithoutLessonInput = {
   data: Prisma.XOR<Prisma.HintEventUpdateManyMutationInput, Prisma.HintEventUncheckedUpdateManyWithoutLessonInput>
 }
 
+export type HintEventCreateWithoutRepliesInput = {
+  id?: string
+  diagnosis: string
+  level: number
+  status?: $Enums.HintStatus
+  text: string
+  createdAt?: Date | string
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
+  student: Prisma.StudentCreateNestedOneWithoutHintEventsInput
+  lesson: Prisma.LessonCreateNestedOneWithoutHintEventsInput
+  approvedBy?: Prisma.TeacherCreateNestedOneWithoutApprovedHintsInput
+  answeredHint?: Prisma.HintEventCreateNestedOneWithoutRepliesInput
+}
+
+export type HintEventUncheckedCreateWithoutRepliesInput = {
+  id?: string
+  diagnosis: string
+  level: number
+  status?: $Enums.HintStatus
+  text: string
+  createdAt?: Date | string
+  studentId: string
+  lessonId: string
+  approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
+}
+
+export type HintEventCreateOrConnectWithoutRepliesInput = {
+  where: Prisma.HintEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.HintEventCreateWithoutRepliesInput, Prisma.HintEventUncheckedCreateWithoutRepliesInput>
+}
+
+export type HintEventCreateWithoutAnsweredHintInput = {
+  id?: string
+  diagnosis: string
+  level: number
+  status?: $Enums.HintStatus
+  text: string
+  createdAt?: Date | string
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
+  student: Prisma.StudentCreateNestedOneWithoutHintEventsInput
+  lesson: Prisma.LessonCreateNestedOneWithoutHintEventsInput
+  approvedBy?: Prisma.TeacherCreateNestedOneWithoutApprovedHintsInput
+  replies?: Prisma.HintEventCreateNestedManyWithoutAnsweredHintInput
+}
+
+export type HintEventUncheckedCreateWithoutAnsweredHintInput = {
+  id?: string
+  diagnosis: string
+  level: number
+  status?: $Enums.HintStatus
+  text: string
+  createdAt?: Date | string
+  studentId: string
+  lessonId: string
+  approvedById?: string | null
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
+  replies?: Prisma.HintEventUncheckedCreateNestedManyWithoutAnsweredHintInput
+}
+
+export type HintEventCreateOrConnectWithoutAnsweredHintInput = {
+  where: Prisma.HintEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.HintEventCreateWithoutAnsweredHintInput, Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput>
+}
+
+export type HintEventCreateManyAnsweredHintInputEnvelope = {
+  data: Prisma.HintEventCreateManyAnsweredHintInput | Prisma.HintEventCreateManyAnsweredHintInput[]
+  skipDuplicates?: boolean
+}
+
+export type HintEventUpsertWithoutRepliesInput = {
+  update: Prisma.XOR<Prisma.HintEventUpdateWithoutRepliesInput, Prisma.HintEventUncheckedUpdateWithoutRepliesInput>
+  create: Prisma.XOR<Prisma.HintEventCreateWithoutRepliesInput, Prisma.HintEventUncheckedCreateWithoutRepliesInput>
+  where?: Prisma.HintEventWhereInput
+}
+
+export type HintEventUpdateToOneWithWhereWithoutRepliesInput = {
+  where?: Prisma.HintEventWhereInput
+  data: Prisma.XOR<Prisma.HintEventUpdateWithoutRepliesInput, Prisma.HintEventUncheckedUpdateWithoutRepliesInput>
+}
+
+export type HintEventUpdateWithoutRepliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnosis?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  student?: Prisma.StudentUpdateOneRequiredWithoutHintEventsNestedInput
+  lesson?: Prisma.LessonUpdateOneRequiredWithoutHintEventsNestedInput
+  approvedBy?: Prisma.TeacherUpdateOneWithoutApprovedHintsNestedInput
+  answeredHint?: Prisma.HintEventUpdateOneWithoutRepliesNestedInput
+}
+
+export type HintEventUncheckedUpdateWithoutRepliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnosis?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  lessonId?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type HintEventUpsertWithWhereUniqueWithoutAnsweredHintInput = {
+  where: Prisma.HintEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.HintEventUpdateWithoutAnsweredHintInput, Prisma.HintEventUncheckedUpdateWithoutAnsweredHintInput>
+  create: Prisma.XOR<Prisma.HintEventCreateWithoutAnsweredHintInput, Prisma.HintEventUncheckedCreateWithoutAnsweredHintInput>
+}
+
+export type HintEventUpdateWithWhereUniqueWithoutAnsweredHintInput = {
+  where: Prisma.HintEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.HintEventUpdateWithoutAnsweredHintInput, Prisma.HintEventUncheckedUpdateWithoutAnsweredHintInput>
+}
+
+export type HintEventUpdateManyWithWhereWithoutAnsweredHintInput = {
+  where: Prisma.HintEventScalarWhereInput
+  data: Prisma.XOR<Prisma.HintEventUpdateManyMutationInput, Prisma.HintEventUncheckedUpdateManyWithoutAnsweredHintInput>
+}
+
 export type HintEventCreateManyStudentInput = {
   id?: string
   diagnosis: string
@@ -751,6 +1052,9 @@ export type HintEventCreateManyStudentInput = {
   createdAt?: Date | string
   lessonId: string
   approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
 }
 
 export type HintEventUpdateWithoutStudentInput = {
@@ -760,8 +1064,12 @@ export type HintEventUpdateWithoutStudentInput = {
   status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
   text?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lesson?: Prisma.LessonUpdateOneRequiredWithoutHintEventsNestedInput
   approvedBy?: Prisma.TeacherUpdateOneWithoutApprovedHintsNestedInput
+  answeredHint?: Prisma.HintEventUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.HintEventUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateWithoutStudentInput = {
@@ -773,6 +1081,10 @@ export type HintEventUncheckedUpdateWithoutStudentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessonId?: Prisma.StringFieldUpdateOperationsInput | string
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replies?: Prisma.HintEventUncheckedUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateManyWithoutStudentInput = {
@@ -784,6 +1096,9 @@ export type HintEventUncheckedUpdateManyWithoutStudentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessonId?: Prisma.StringFieldUpdateOperationsInput | string
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type HintEventCreateManyApprovedByInput = {
@@ -795,6 +1110,9 @@ export type HintEventCreateManyApprovedByInput = {
   createdAt?: Date | string
   studentId: string
   lessonId: string
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
 }
 
 export type HintEventUpdateWithoutApprovedByInput = {
@@ -804,8 +1122,12 @@ export type HintEventUpdateWithoutApprovedByInput = {
   status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
   text?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   student?: Prisma.StudentUpdateOneRequiredWithoutHintEventsNestedInput
   lesson?: Prisma.LessonUpdateOneRequiredWithoutHintEventsNestedInput
+  answeredHint?: Prisma.HintEventUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.HintEventUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateWithoutApprovedByInput = {
@@ -817,6 +1139,10 @@ export type HintEventUncheckedUpdateWithoutApprovedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   lessonId?: Prisma.StringFieldUpdateOperationsInput | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replies?: Prisma.HintEventUncheckedUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateManyWithoutApprovedByInput = {
@@ -828,6 +1154,9 @@ export type HintEventUncheckedUpdateManyWithoutApprovedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   lessonId?: Prisma.StringFieldUpdateOperationsInput | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type HintEventCreateManyLessonInput = {
@@ -839,6 +1168,9 @@ export type HintEventCreateManyLessonInput = {
   createdAt?: Date | string
   studentId: string
   approvedById?: string | null
+  childAnswer?: string | null
+  answeredHintId?: string | null
+  dismissedAt?: Date | string | null
 }
 
 export type HintEventUpdateWithoutLessonInput = {
@@ -848,8 +1180,12 @@ export type HintEventUpdateWithoutLessonInput = {
   status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
   text?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   student?: Prisma.StudentUpdateOneRequiredWithoutHintEventsNestedInput
   approvedBy?: Prisma.TeacherUpdateOneWithoutApprovedHintsNestedInput
+  answeredHint?: Prisma.HintEventUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.HintEventUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateWithoutLessonInput = {
@@ -861,6 +1197,10 @@ export type HintEventUncheckedUpdateWithoutLessonInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replies?: Prisma.HintEventUncheckedUpdateManyWithoutAnsweredHintNestedInput
 }
 
 export type HintEventUncheckedUpdateManyWithoutLessonInput = {
@@ -872,8 +1212,98 @@ export type HintEventUncheckedUpdateManyWithoutLessonInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answeredHintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type HintEventCreateManyAnsweredHintInput = {
+  id?: string
+  diagnosis: string
+  level: number
+  status?: $Enums.HintStatus
+  text: string
+  createdAt?: Date | string
+  studentId: string
+  lessonId: string
+  approvedById?: string | null
+  childAnswer?: string | null
+  dismissedAt?: Date | string | null
+}
+
+export type HintEventUpdateWithoutAnsweredHintInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnosis?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  student?: Prisma.StudentUpdateOneRequiredWithoutHintEventsNestedInput
+  lesson?: Prisma.LessonUpdateOneRequiredWithoutHintEventsNestedInput
+  approvedBy?: Prisma.TeacherUpdateOneWithoutApprovedHintsNestedInput
+  replies?: Prisma.HintEventUpdateManyWithoutAnsweredHintNestedInput
+}
+
+export type HintEventUncheckedUpdateWithoutAnsweredHintInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnosis?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  lessonId?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replies?: Prisma.HintEventUncheckedUpdateManyWithoutAnsweredHintNestedInput
+}
+
+export type HintEventUncheckedUpdateManyWithoutAnsweredHintInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnosis?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHintStatusFieldUpdateOperationsInput | $Enums.HintStatus
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  lessonId?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childAnswer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+
+/**
+ * Count Type HintEventCountOutputType
+ */
+
+export type HintEventCountOutputType = {
+  replies: number
+}
+
+export type HintEventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  replies?: boolean | HintEventCountOutputTypeCountRepliesArgs
+}
+
+/**
+ * HintEventCountOutputType without action
+ */
+export type HintEventCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the HintEventCountOutputType
+   */
+  select?: Prisma.HintEventCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * HintEventCountOutputType without action
+ */
+export type HintEventCountOutputTypeCountRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.HintEventWhereInput
+}
 
 
 export type HintEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -886,9 +1316,15 @@ export type HintEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   studentId?: boolean
   lessonId?: boolean
   approvedById?: boolean
+  childAnswer?: boolean
+  answeredHintId?: boolean
+  dismissedAt?: boolean
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   lesson?: boolean | Prisma.LessonDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.HintEvent$approvedByArgs<ExtArgs>
+  answeredHint?: boolean | Prisma.HintEvent$answeredHintArgs<ExtArgs>
+  replies?: boolean | Prisma.HintEvent$repliesArgs<ExtArgs>
+  _count?: boolean | Prisma.HintEventCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hintEvent"]>
 
 export type HintEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -901,9 +1337,13 @@ export type HintEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   studentId?: boolean
   lessonId?: boolean
   approvedById?: boolean
+  childAnswer?: boolean
+  answeredHintId?: boolean
+  dismissedAt?: boolean
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   lesson?: boolean | Prisma.LessonDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.HintEvent$approvedByArgs<ExtArgs>
+  answeredHint?: boolean | Prisma.HintEvent$answeredHintArgs<ExtArgs>
 }, ExtArgs["result"]["hintEvent"]>
 
 export type HintEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -916,9 +1356,13 @@ export type HintEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   studentId?: boolean
   lessonId?: boolean
   approvedById?: boolean
+  childAnswer?: boolean
+  answeredHintId?: boolean
+  dismissedAt?: boolean
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   lesson?: boolean | Prisma.LessonDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.HintEvent$approvedByArgs<ExtArgs>
+  answeredHint?: boolean | Prisma.HintEvent$answeredHintArgs<ExtArgs>
 }, ExtArgs["result"]["hintEvent"]>
 
 export type HintEventSelectScalar = {
@@ -931,23 +1375,31 @@ export type HintEventSelectScalar = {
   studentId?: boolean
   lessonId?: boolean
   approvedById?: boolean
+  childAnswer?: boolean
+  answeredHintId?: boolean
+  dismissedAt?: boolean
 }
 
-export type HintEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "diagnosis" | "level" | "status" | "text" | "createdAt" | "studentId" | "lessonId" | "approvedById", ExtArgs["result"]["hintEvent"]>
+export type HintEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "diagnosis" | "level" | "status" | "text" | "createdAt" | "studentId" | "lessonId" | "approvedById" | "childAnswer" | "answeredHintId" | "dismissedAt", ExtArgs["result"]["hintEvent"]>
 export type HintEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   lesson?: boolean | Prisma.LessonDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.HintEvent$approvedByArgs<ExtArgs>
+  answeredHint?: boolean | Prisma.HintEvent$answeredHintArgs<ExtArgs>
+  replies?: boolean | Prisma.HintEvent$repliesArgs<ExtArgs>
+  _count?: boolean | Prisma.HintEventCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type HintEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   lesson?: boolean | Prisma.LessonDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.HintEvent$approvedByArgs<ExtArgs>
+  answeredHint?: boolean | Prisma.HintEvent$answeredHintArgs<ExtArgs>
 }
 export type HintEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   lesson?: boolean | Prisma.LessonDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.HintEvent$approvedByArgs<ExtArgs>
+  answeredHint?: boolean | Prisma.HintEvent$answeredHintArgs<ExtArgs>
 }
 
 export type $HintEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -956,6 +1408,8 @@ export type $HintEventPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     student: Prisma.$StudentPayload<ExtArgs>
     lesson: Prisma.$LessonPayload<ExtArgs>
     approvedBy: Prisma.$TeacherPayload<ExtArgs> | null
+    answeredHint: Prisma.$HintEventPayload<ExtArgs> | null
+    replies: Prisma.$HintEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -967,6 +1421,9 @@ export type $HintEventPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     studentId: string
     lessonId: string
     approvedById: string | null
+    childAnswer: string | null
+    answeredHintId: string | null
+    dismissedAt: Date | null
   }, ExtArgs["result"]["hintEvent"]>
   composites: {}
 }
@@ -1364,6 +1821,8 @@ export interface Prisma__HintEventClient<T, Null = never, ExtArgs extends runtim
   student<T extends Prisma.StudentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StudentDefaultArgs<ExtArgs>>): Prisma.Prisma__StudentClient<runtime.Types.Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   lesson<T extends Prisma.LessonDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LessonDefaultArgs<ExtArgs>>): Prisma.Prisma__LessonClient<runtime.Types.Result.GetResult<Prisma.$LessonPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   approvedBy<T extends Prisma.HintEvent$approvedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.HintEvent$approvedByArgs<ExtArgs>>): Prisma.Prisma__TeacherClient<runtime.Types.Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  answeredHint<T extends Prisma.HintEvent$answeredHintArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.HintEvent$answeredHintArgs<ExtArgs>>): Prisma.Prisma__HintEventClient<runtime.Types.Result.GetResult<Prisma.$HintEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  replies<T extends Prisma.HintEvent$repliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.HintEvent$repliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HintEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1402,6 +1861,9 @@ export interface HintEventFieldRefs {
   readonly studentId: Prisma.FieldRef<"HintEvent", 'String'>
   readonly lessonId: Prisma.FieldRef<"HintEvent", 'String'>
   readonly approvedById: Prisma.FieldRef<"HintEvent", 'String'>
+  readonly childAnswer: Prisma.FieldRef<"HintEvent", 'String'>
+  readonly answeredHintId: Prisma.FieldRef<"HintEvent", 'String'>
+  readonly dismissedAt: Prisma.FieldRef<"HintEvent", 'DateTime'>
 }
     
 
@@ -1819,6 +2281,49 @@ export type HintEvent$approvedByArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.TeacherInclude<ExtArgs> | null
   where?: Prisma.TeacherWhereInput
+}
+
+/**
+ * HintEvent.answeredHint
+ */
+export type HintEvent$answeredHintArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the HintEvent
+   */
+  select?: Prisma.HintEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the HintEvent
+   */
+  omit?: Prisma.HintEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HintEventInclude<ExtArgs> | null
+  where?: Prisma.HintEventWhereInput
+}
+
+/**
+ * HintEvent.replies
+ */
+export type HintEvent$repliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the HintEvent
+   */
+  select?: Prisma.HintEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the HintEvent
+   */
+  omit?: Prisma.HintEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HintEventInclude<ExtArgs> | null
+  where?: Prisma.HintEventWhereInput
+  orderBy?: Prisma.HintEventOrderByWithRelationInput | Prisma.HintEventOrderByWithRelationInput[]
+  cursor?: Prisma.HintEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.HintEventScalarFieldEnum | Prisma.HintEventScalarFieldEnum[]
 }
 
 /**

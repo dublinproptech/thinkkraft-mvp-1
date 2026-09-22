@@ -154,6 +154,19 @@ model HintEvent {
 
   approvedById String?
   approvedBy   Teacher? @relation(fields: [approvedById], references: [id])
+
+  // When this hint is a reply to one the child answered: what they wrote, and
+  // which hint they were answering. The teacher approving a follow-up needs to
+  // see the exchange, not an orphaned sentence, and a child's own words are
+  // the one place something worth acting on is likely to surface.
+  childAnswer    String?
+  answeredHintId String?
+  answeredHint   HintEvent?  @relation("HintThread", fields: [answeredHintId], references: [id])
+  replies        HintEvent[] @relation("HintThread")
+
+  // Set when the child closes the card. It hides the tip from them without
+  // touching what the teacher approved, so the record stays intact.
+  dismissedAt DateTime?
 }
 
 model SkillMastery {

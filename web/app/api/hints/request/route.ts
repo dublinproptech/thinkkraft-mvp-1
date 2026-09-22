@@ -43,7 +43,9 @@ export async function POST(req: Request) {
   }
 
   // Store as a pending hint; it is NOT returned to the child yet.
-  const saved = await createHint({
+  // A repeat of a tip the child already has is not filed again, and the child
+  // is told so rather than being left waiting on an approval that will not come.
+  const { hint, duplicate } = await createHint({
     studentId: who.studentId,
     lessonId,
     diagnosis: ai.result.diagnosis,
@@ -51,5 +53,10 @@ export async function POST(req: Request) {
     text: ai.hint.text,
   });
 
-  return Response.json({ correct: false, hintId: saved.id, status: "pending" });
+  return Response.json({
+    correct: false,
+    hintId: hint.id,
+    status: duplicate ? (hint.status === "APPROVED" ? "already" : "pending") : "pending",
+    duplicate,
+  });
 }

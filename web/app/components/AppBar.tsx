@@ -31,25 +31,24 @@ const HOME: Record<string, string> = {
 type Props = {
   /** Extra links for this page, rendered before the sign-out button. */
   links?: { href: string; label: string }[];
+  /** Line the bar up with a .shell-wide page, such as the workspace. */
+  wide?: boolean;
 };
 
-export default function AppBar({ links = [] }: Props) {
+export default function AppBar({ links = [], wide = false }: Props) {
   const { data: session } = useSession();
   const role = session?.user?.role ?? "";
   const name = session?.user?.name ?? session?.user?.email ?? null;
 
   return (
-    <header className="appbar">
-      <Link
-        href={HOME[role] ?? "/"}
-        style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
-      >
+    <header className={wide ? "appbar appbar-wide" : "appbar"}>
+      <Link href={HOME[role] ?? "/"} className="appbar-brand">
         <Image
           src="/logo.png"
           alt="ThinkKraft"
           width={132}
           height={44}
-          style={{ objectFit: "contain" }}
+          className="appbar-logo"
           priority
         />
       </Link>

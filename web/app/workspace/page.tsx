@@ -6,6 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import HintPanel from "./HintPanel";
 import AppBar from "../components/AppBar";
 
+// What the editor sends back when asked for the child's project.
+type Sb3Reply = { buffer?: ArrayBuffer; error?: string };
+
 function WorkspaceContent() {
   const { data: session, status } = useSession() || { data: null, status: "unauthenticated" };
   const router = useRouter();
@@ -21,7 +24,6 @@ function WorkspaceContent() {
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [sb3Ref, setSb3Ref] = useState<string | null>(null);
 
   // --- NEW: UI/UX STATE ---
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -35,8 +37,85 @@ function WorkspaceContent() {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Requests for the editor's project, waiting on their reply. The editor
+  // answers with the requestId it was given, so two overlapping requests cannot
+  // be confused for each other.
+  const sb3Waiters = useRef<Map<string, (r: Sb3Reply) => void>>(new Map());
+
+  // Ask the editor to zip up what the child has on screen, then store it.
+  //
+  // This is what makes "check my work" work without the child exporting a file
+  // by hand: the VM can serialise itself, so the hint is about the blocks that
+  // are actually there right now. Returns the stored project's ref, or null.
+  async function captureProject(): Promise<string | null> {
+    const frame = iframeRef.current?.contentWindow;
+    if (!frame || !lessonId) return null;
+
+    const requestId = crypto.randomUUID();
+    const reply = await new Promise<Sb3Reply | null>((resolve) => {
+      sb3Waiters.current.set(requestId, resolve);
+      // The editor may still be booting, and a child should not be left
+      // waiting on a promise that never settles.
+      const timeout = setTimeout(() => {
+        sb3Waiters.current.delete(requestId);
+        resolve(null);
+      }, 15000);
+      sb3Waiters.current.set(requestId, (r) => {
+        clearTimeout(timeout);
+        resolve(r);
+      });
+      frame.postMessage({ type: "REQUEST_SB3", requestId }, window.location.origin);
+    });
+
+    if (!reply || reply.error || !reply.buffer) return null;
+
+    const form = new FormData();
+    form.append("file", new Blob([reply.buffer]), "project.sb3");
+    form.append("lessonId", lessonId);
+    const res = await fetch("/api/projects", { method: "POST", body: form })
+      .then((r) => r.json())
+      .catch(() => null);
+
+    if (!res || res.error) return null;
+    return res.project.sb3Ref as string;
+  }
+
   useEffect(() => {
     const handleIframeMessage = async (event: MessageEvent) => {
+      // The editor is served from this same origin, so anything from elsewhere
+      // is not our editor. This is the only thing standing between a child's
+      // activity feed and any other page that can reach this window.
+      if (event.origin !== window.location.origin) return;
+
+      // The editor handing back a project we asked for.
+      if (event.data && event.data.type === 'PROJECT_SB3') {
+        const waiter = sb3Waiters.current.get(event.data.requestId);
+        if (waiter) {
+          sb3Waiters.current.delete(event.data.requestId);
+          waiter({ buffer: event.data.buffer, error: event.data.error });
+        }
+        return;
+      }
+
+      // Live activity from the embedded Scratch editor. The bridge in
+      // public/scratch-editor/index.html sends one of the four kinds the
+      // monitor understands; lessonId is added here, and studentId comes from
+      // the session inside /api/activity, never from the page.
+      if (event.data && event.data.source === 'thinkkraft-editor') {
+        if (!lessonId) return;
+        try {
+          await fetch('/api/activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lessonId, kind: event.data.kind }),
+          });
+        } catch (error) {
+          // Losing an activity event is not worth interrupting the child.
+          console.error('Activity forward failed:', error);
+        }
+        return;
+      }
+
       if (event.data && event.data.type === 'PROJECT_SAVED') {
         if (!studentId || !lessonId) return;
 
@@ -71,7 +150,11 @@ function WorkspaceContent() {
 
     const syncInterval = setInterval(() => {
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        iframeRef.current.contentWindow.postMessage({ type: 'REQUEST_SAVE' }, '*');
+        // Same origin, so name it rather than broadcasting with "*".
+        iframeRef.current.contentWindow.postMessage(
+          { type: 'REQUEST_SAVE' },
+          window.location.origin,
+        );
       }
     }, 30000); 
 
@@ -118,7 +201,6 @@ function WorkspaceContent() {
     }
 
     setMsg(`Saved. Project id: ${res.project.id}`);
-    setSb3Ref(res.project.sb3Ref);
   }
 
   if (status === "loading") {
@@ -134,100 +216,78 @@ function WorkspaceContent() {
 
   return (
     <>
-    <AppBar links={[{ href: "/dashboard", label: "My lessons" }]} />
-    <main className="shell">
+    <AppBar wide links={[{ href: "/dashboard", label: "My lessons" }]} />
+    {/* The editor needs the width, so this page is not on the reading-width
+        shell the rest of the app uses. */}
+    <main className="shell-wide">
       {toast && (
         <div
-          className="panel-flat"
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            maxWidth: 340,
-            background: toast.type === 'success' ? 'var(--mint)' : 'var(--sky)',
-            color: 'var(--navy)',
-            fontWeight: 800,
-            zIndex: 9999,
-            animation: 'slideIn 0.3s ease-out forwards',
-          }}
+          className={
+            toast.type === 'success'
+              ? 'panel-flat toast toast-success'
+              : 'panel-flat toast'
+          }
         >
           {toast.message}
         </div>
       )}
 
-      <style>{`
-        @keyframes slideIn {
-          from { transform: translateY(100%); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
-
-      <div className="page-head">
+      <div className="workspace-head">
         <h1>Build your project</h1>
-        <p>
-          Lesson {lessonId || "not chosen"}
+        <div className="workspace-meta">
+          <span className="rolechip">Lesson {lessonId || "not chosen"}</span>
           {isAnalyzing && (
-            <span
-              style={{
-                marginLeft: 10,
-                color: "var(--violet)",
-                animation: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-              }}
-            >
-              · Milo is looking at your blocks
-            </span>
+            <span className="muted thinking">Milo is looking at your blocks</span>
           )}
-        </p>
+        </div>
       </div>
 
-      <div className="panel" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="panel panel-frame">
         <iframe
           ref={iframeRef}
           src="/scratch-editor/index.html"
-          width="100%"
-          height="700px"
-          style={{ border: 'none', display: 'block', backgroundColor: '#fff' }}
+          className="editor-frame"
           title="ThinkKraft Scratch Editor"
         />
       </div>
 
-      <div className="panel" style={{ marginTop: 16 }}>
-        <h2 style={{ fontSize: 19, color: "var(--navy)", marginBottom: 6 }}>
-          Save your project
-        </h2>
-        <p className="muted" style={{ margin: "0 0 14px" }}>
-          Use <b>File {'>'} Save to your computer</b> in the editor above, then choose
-          that file here.
-        </p>
-        <input
-          type="file"
-          accept=".sb3"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+      {/* Between the editor and the save box, and on screen the whole time:
+          a proactive nudge can arrive before anything has been saved. */}
+      {studentId && lessonId && (
+        // Keyed by lesson so moving to another one starts a fresh panel rather
+        // than leaving the previous lesson's tips on screen.
+        <HintPanel
+          key={lessonId}
+          studentId={studentId}
+          lessonId={lessonId}
+          captureProject={captureProject}
+          onApproved={(text) =>
+            showToast(`Your teacher approved a tip: ${text}`, "success")
+          }
         />
-        <div style={{ marginTop: 14 }}>
+      )}
+
+      <div className="panel">
+        <h2 className="panel-title">Save your project</h2>
+        <p className="muted panel-note">
+          Use <b>File {'>'} Save to your computer</b> in the editor above, then choose
+          that file here. Milo already looks at your blocks when you press{" "}
+          <b>Check my work</b>, so this is just for keeping a copy.
+        </p>
+        <div className="save-row">
+          <input
+            type="file"
+            accept=".sb3"
+            className="input-file"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
           <button className="btn-solid" onClick={save}>
             Save project
           </button>
         </div>
-        {err && (
-          <p className="notice notice-error" style={{ marginTop: 14 }}>
-            {err}
-          </p>
-        )}
-        {msg && (
-          <p className="notice notice-ok" style={{ marginTop: 14 }}>
-            {msg}
-          </p>
-        )}
+        {err && <p className="notice notice-error panel-msg">{err}</p>}
+        {msg && <p className="notice notice-ok panel-msg">{msg}</p>}
       </div>
-
-      {sb3Ref && studentId && lessonId && (
-        <HintPanel studentId={studentId} lessonId={lessonId} sb3Ref={sb3Ref} />
-      )}
     </main>
     </>
   );

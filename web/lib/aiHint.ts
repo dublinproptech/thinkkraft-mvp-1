@@ -23,6 +23,25 @@ export async function requestHint(
   }>;
 }
 
+// The child answered a hint that asked them a question. The AI service picks
+// the next rung of the same ladder; the answer only colours the wording. What
+// comes back is a proposed hint like any other, not a reply straight to the child.
+export async function requestFollowup(
+  diagnosis: string,
+  previousLevel: number,
+  answer: string,
+) {
+  const res = await fetch(`${AI}/followup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ diagnosis, previousLevel, answer }),
+  });
+  if (!res.ok) throw new Error(`AI service returned ${res.status}`);
+  return res.json() as Promise<{
+    hint: { level: number; text: string } | null;
+  }>;
+}
+
 export async function sendActivity(
   studentId: string,
   lessonId: string,
