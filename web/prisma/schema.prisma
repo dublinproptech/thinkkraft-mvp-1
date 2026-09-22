@@ -85,6 +85,9 @@ model Lesson {
   id      String @id @default(cuid())
   orderNo Int
   goal    String
+  // Nullable because lessons were seeded before this existed. Lists fall back
+  // to the goal when it is empty.
+  title   String?
 
   courseId String
   course   Course @relation(fields: [courseId], references: [id])
@@ -213,6 +216,11 @@ enum Role {
   STUDENT
   TEACHER
   PARENT
+  // An admin has no profile row. The other three roles each point at a person
+  // in a classroom; an admin is an operator of the system, so their User row
+  // stands alone. Admins are made by scripts/make-admin.ts, never by signing
+  // up, so nobody can grant themselves the run of the curriculum.
+  ADMIN
 }
 
 enum EnrolmentStatus {
