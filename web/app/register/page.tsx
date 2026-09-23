@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import toast from "react-hot-toast"; // <-- Added toast import
+import toast from "react-hot-toast";
 
 // Zod's flatten() puts field problems under fieldErrors and whole-form ones
 // under formErrors. Pull out the first readable line for the banner.
@@ -56,7 +56,7 @@ export default function RegisterPage() {
       // Sign the new parent straight in rather than making them type the same
       // details again, and take them to the page where they add their children.
       const signedIn = await signIn("credentials", {
-        usernameOrEmail: email,
+        email, // <-- This is the fixed field
         password,
         redirect: false,
       });
