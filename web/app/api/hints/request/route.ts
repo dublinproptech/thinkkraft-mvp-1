@@ -33,30 +33,40 @@ export async function POST(req: Request) {
     return Response.json({ error: "Unknown project." }, { status: 404 });
   }
 
-  const ai = await requestHint(sb3Ref, lessonId, attempts);
+  try {
+    const ai = await requestHint(sb3Ref, lessonId, attempts);
 
-  if (ai.result.correct) {
-    return Response.json({ correct: true });
+    // SAFETY CATCH: If the AI returns an error or empty result, log it and return gracefully
+    if (!ai || !ai.result) {
+      console.error("❌ AI Service failed to return a valid result. What we got:", ai);
+      return Response.json({ correct: false, hint: null, error: "AI failed" }, { status: 502 });
+    }
+
+    if (ai.result.correct) {
+      return Response.json({ correct: true });
+    }
+    if (!ai.hint || !ai.result.diagnosis) {
+      return Response.json({ correct: false, hint: null });
+    }
+
+    // Store as a pending hint; it is NOT returned to the child yet.
+    const { hint, duplicate } = await createHint({
+      studentId: who.studentId,
+      lessonId,
+      diagnosis: ai.result.diagnosis,
+      level: ai.hint.level,
+      text: ai.hint.text,
+    });
+
+    return Response.json({
+      correct: false,
+      hintId: hint.id,
+      status: duplicate ? (hint.status === "APPROVED" ? "already" : "pending") : "pending",
+      duplicate,
+    });
+  } catch (error) {
+    // If Prisma, the Database, or the Fetch call fails, catch it here!
+    console.error("❌ Backend crash in request route:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-  if (!ai.hint || !ai.result.diagnosis) {
-    return Response.json({ correct: false, hint: null });
-  }
-
-  // Store as a pending hint; it is NOT returned to the child yet.
-  // A repeat of a tip the child already has is not filed again, and the child
-  // is told so rather than being left waiting on an approval that will not come.
-  const { hint, duplicate } = await createHint({
-    studentId: who.studentId,
-    lessonId,
-    diagnosis: ai.result.diagnosis,
-    level: ai.hint.level,
-    text: ai.hint.text,
-  });
-
-  return Response.json({
-    correct: false,
-    hintId: hint.id,
-    status: duplicate ? (hint.status === "APPROVED" ? "already" : "pending") : "pending",
-    duplicate,
-  });
 }
