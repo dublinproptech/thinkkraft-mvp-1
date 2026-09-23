@@ -42,3 +42,6 @@ next-env.d.ts
 
 web/generated
 web/storage/
+
+# Ignore local Scratch project saves
+storage/projects/*.sb3

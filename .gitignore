@@ -25,3 +25,7 @@ web/prisma/*.db
 # external tools
 scratch-editor/
 scratch-gui/
+
+# Ignore virtual environments
+.venv/
+venv/
