@@ -49,7 +49,11 @@ export const authOptions: NextAuthOptions = {
         // A role is only real if the matching profile row is actually linked.
         // Without this a User row with role TEACHER but no teacherId would pass
         // the role check in an API route and then fail on the foreign key.
-        if (!profileIdFor(user)) return null;
+        //
+        // ADMIN is the exception: it has no profile row by design, because an
+        // admin is an operator of the system rather than someone in a
+        // classroom. Nothing an admin does is keyed by who they are.
+        if (user.role !== "ADMIN" && !profileIdFor(user)) return null;
 
         return {
           id: user.id,
@@ -58,7 +62,8 @@ export const authOptions: NextAuthOptions = {
             user.student?.displayName ??
             user.teacher?.name ??
             user.parent?.name ??
-            user.username,
+            user.username ??
+            user.email,
           role: user.role,
           studentId: user.studentId,
           teacherId: user.teacherId,

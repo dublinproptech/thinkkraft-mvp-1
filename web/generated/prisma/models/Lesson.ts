@@ -38,6 +38,7 @@ export type LessonMinAggregateOutputType = {
   id: string | null
   orderNo: number | null
   goal: string | null
+  title: string | null
   courseId: string | null
 }
 
@@ -45,6 +46,7 @@ export type LessonMaxAggregateOutputType = {
   id: string | null
   orderNo: number | null
   goal: string | null
+  title: string | null
   courseId: string | null
 }
 
@@ -52,6 +54,7 @@ export type LessonCountAggregateOutputType = {
   id: number
   orderNo: number
   goal: number
+  title: number
   courseId: number
   _all: number
 }
@@ -69,6 +72,7 @@ export type LessonMinAggregateInputType = {
   id?: true
   orderNo?: true
   goal?: true
+  title?: true
   courseId?: true
 }
 
@@ -76,6 +80,7 @@ export type LessonMaxAggregateInputType = {
   id?: true
   orderNo?: true
   goal?: true
+  title?: true
   courseId?: true
 }
 
@@ -83,6 +88,7 @@ export type LessonCountAggregateInputType = {
   id?: true
   orderNo?: true
   goal?: true
+  title?: true
   courseId?: true
   _all?: true
 }
@@ -177,6 +183,7 @@ export type LessonGroupByOutputType = {
   id: string
   orderNo: number
   goal: string
+  title: string | null
   courseId: string
   _count: LessonCountAggregateOutputType | null
   _avg: LessonAvgAggregateOutputType | null
@@ -207,6 +214,7 @@ export type LessonWhereInput = {
   id?: Prisma.StringFilter<"Lesson"> | string
   orderNo?: Prisma.IntFilter<"Lesson"> | number
   goal?: Prisma.StringFilter<"Lesson"> | string
+  title?: Prisma.StringNullableFilter<"Lesson"> | string | null
   courseId?: Prisma.StringFilter<"Lesson"> | string
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
   projects?: Prisma.ProjectListRelationFilter
@@ -218,6 +226,7 @@ export type LessonOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   orderNo?: Prisma.SortOrder
   goal?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
   courseId?: Prisma.SortOrder
   course?: Prisma.CourseOrderByWithRelationInput
   projects?: Prisma.ProjectOrderByRelationAggregateInput
@@ -233,6 +242,7 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.LessonWhereInput | Prisma.LessonWhereInput[]
   orderNo?: Prisma.IntFilter<"Lesson"> | number
   goal?: Prisma.StringFilter<"Lesson"> | string
+  title?: Prisma.StringNullableFilter<"Lesson"> | string | null
   courseId?: Prisma.StringFilter<"Lesson"> | string
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
   projects?: Prisma.ProjectListRelationFilter
@@ -244,6 +254,7 @@ export type LessonOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   orderNo?: Prisma.SortOrder
   goal?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
   courseId?: Prisma.SortOrder
   _count?: Prisma.LessonCountOrderByAggregateInput
   _avg?: Prisma.LessonAvgOrderByAggregateInput
@@ -259,6 +270,7 @@ export type LessonScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Lesson"> | string
   orderNo?: Prisma.IntWithAggregatesFilter<"Lesson"> | number
   goal?: Prisma.StringWithAggregatesFilter<"Lesson"> | string
+  title?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null
   courseId?: Prisma.StringWithAggregatesFilter<"Lesson"> | string
 }
 
@@ -266,6 +278,7 @@ export type LessonCreateInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   projects?: Prisma.ProjectCreateNestedManyWithoutLessonInput
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutLessonInput
@@ -276,6 +289,7 @@ export type LessonUncheckedCreateInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   courseId: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLessonInput
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutLessonInput
@@ -286,6 +300,7 @@ export type LessonUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutLessonNestedInput
   hintEvents?: Prisma.HintEventUpdateManyWithoutLessonNestedInput
@@ -296,6 +311,7 @@ export type LessonUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutLessonNestedInput
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutLessonNestedInput
@@ -306,6 +322,7 @@ export type LessonCreateManyInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   courseId: string
 }
 
@@ -313,12 +330,14 @@ export type LessonUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LessonUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -341,6 +360,7 @@ export type LessonCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   orderNo?: Prisma.SortOrder
   goal?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
 }
 
@@ -352,6 +372,7 @@ export type LessonMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   orderNo?: Prisma.SortOrder
   goal?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
 }
 
@@ -359,6 +380,7 @@ export type LessonMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   orderNo?: Prisma.SortOrder
   goal?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
 }
 
@@ -467,6 +489,7 @@ export type LessonCreateWithoutCourseInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   projects?: Prisma.ProjectCreateNestedManyWithoutLessonInput
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutLessonInput
   studentProgress?: Prisma.StudentProgressCreateNestedManyWithoutLessonInput
@@ -476,6 +499,7 @@ export type LessonUncheckedCreateWithoutCourseInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLessonInput
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutLessonInput
   studentProgress?: Prisma.StudentProgressUncheckedCreateNestedManyWithoutLessonInput
@@ -514,6 +538,7 @@ export type LessonScalarWhereInput = {
   id?: Prisma.StringFilter<"Lesson"> | string
   orderNo?: Prisma.IntFilter<"Lesson"> | number
   goal?: Prisma.StringFilter<"Lesson"> | string
+  title?: Prisma.StringNullableFilter<"Lesson"> | string | null
   courseId?: Prisma.StringFilter<"Lesson"> | string
 }
 
@@ -521,6 +546,7 @@ export type LessonCreateWithoutProjectsInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutLessonInput
   studentProgress?: Prisma.StudentProgressCreateNestedManyWithoutLessonInput
@@ -530,6 +556,7 @@ export type LessonUncheckedCreateWithoutProjectsInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   courseId: string
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutLessonInput
   studentProgress?: Prisma.StudentProgressUncheckedCreateNestedManyWithoutLessonInput
@@ -555,6 +582,7 @@ export type LessonUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   hintEvents?: Prisma.HintEventUpdateManyWithoutLessonNestedInput
   studentProgress?: Prisma.StudentProgressUpdateManyWithoutLessonNestedInput
@@ -564,6 +592,7 @@ export type LessonUncheckedUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutLessonNestedInput
   studentProgress?: Prisma.StudentProgressUncheckedUpdateManyWithoutLessonNestedInput
@@ -573,6 +602,7 @@ export type LessonCreateWithoutHintEventsInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   projects?: Prisma.ProjectCreateNestedManyWithoutLessonInput
   studentProgress?: Prisma.StudentProgressCreateNestedManyWithoutLessonInput
@@ -582,6 +612,7 @@ export type LessonUncheckedCreateWithoutHintEventsInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   courseId: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLessonInput
   studentProgress?: Prisma.StudentProgressUncheckedCreateNestedManyWithoutLessonInput
@@ -607,6 +638,7 @@ export type LessonUpdateWithoutHintEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutLessonNestedInput
   studentProgress?: Prisma.StudentProgressUpdateManyWithoutLessonNestedInput
@@ -616,6 +648,7 @@ export type LessonUncheckedUpdateWithoutHintEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutLessonNestedInput
   studentProgress?: Prisma.StudentProgressUncheckedUpdateManyWithoutLessonNestedInput
@@ -625,6 +658,7 @@ export type LessonCreateWithoutStudentProgressInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   course: Prisma.CourseCreateNestedOneWithoutLessonsInput
   projects?: Prisma.ProjectCreateNestedManyWithoutLessonInput
   hintEvents?: Prisma.HintEventCreateNestedManyWithoutLessonInput
@@ -634,6 +668,7 @@ export type LessonUncheckedCreateWithoutStudentProgressInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
   courseId: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLessonInput
   hintEvents?: Prisma.HintEventUncheckedCreateNestedManyWithoutLessonInput
@@ -659,6 +694,7 @@ export type LessonUpdateWithoutStudentProgressInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   course?: Prisma.CourseUpdateOneRequiredWithoutLessonsNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutLessonNestedInput
   hintEvents?: Prisma.HintEventUpdateManyWithoutLessonNestedInput
@@ -668,6 +704,7 @@ export type LessonUncheckedUpdateWithoutStudentProgressInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutLessonNestedInput
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutLessonNestedInput
@@ -677,12 +714,14 @@ export type LessonCreateManyCourseInput = {
   id?: string
   orderNo: number
   goal: string
+  title?: string | null
 }
 
 export type LessonUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projects?: Prisma.ProjectUpdateManyWithoutLessonNestedInput
   hintEvents?: Prisma.HintEventUpdateManyWithoutLessonNestedInput
   studentProgress?: Prisma.StudentProgressUpdateManyWithoutLessonNestedInput
@@ -692,6 +731,7 @@ export type LessonUncheckedUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutLessonNestedInput
   hintEvents?: Prisma.HintEventUncheckedUpdateManyWithoutLessonNestedInput
   studentProgress?: Prisma.StudentProgressUncheckedUpdateManyWithoutLessonNestedInput
@@ -701,6 +741,7 @@ export type LessonUncheckedUpdateManyWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderNo?: Prisma.IntFieldUpdateOperationsInput | number
   goal?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -756,6 +797,7 @@ export type LessonSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   orderNo?: boolean
   goal?: boolean
+  title?: boolean
   courseId?: boolean
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
   projects?: boolean | Prisma.Lesson$projectsArgs<ExtArgs>
@@ -768,6 +810,7 @@ export type LessonSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   orderNo?: boolean
   goal?: boolean
+  title?: boolean
   courseId?: boolean
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lesson"]>
@@ -776,6 +819,7 @@ export type LessonSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   orderNo?: boolean
   goal?: boolean
+  title?: boolean
   courseId?: boolean
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lesson"]>
@@ -784,10 +828,11 @@ export type LessonSelectScalar = {
   id?: boolean
   orderNo?: boolean
   goal?: boolean
+  title?: boolean
   courseId?: boolean
 }
 
-export type LessonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNo" | "goal" | "courseId", ExtArgs["result"]["lesson"]>
+export type LessonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNo" | "goal" | "title" | "courseId", ExtArgs["result"]["lesson"]>
 export type LessonInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
   projects?: boolean | Prisma.Lesson$projectsArgs<ExtArgs>
@@ -814,6 +859,7 @@ export type $LessonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: string
     orderNo: number
     goal: string
+    title: string | null
     courseId: string
   }, ExtArgs["result"]["lesson"]>
   composites: {}
@@ -1245,6 +1291,7 @@ export interface LessonFieldRefs {
   readonly id: Prisma.FieldRef<"Lesson", 'String'>
   readonly orderNo: Prisma.FieldRef<"Lesson", 'Int'>
   readonly goal: Prisma.FieldRef<"Lesson", 'String'>
+  readonly title: Prisma.FieldRef<"Lesson", 'String'>
   readonly courseId: Prisma.FieldRef<"Lesson", 'String'>
 }
     

@@ -567,3 +567,361 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 800; margin: 0; }
   .save-row .btn-solid { width: 100%; }
   .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
 }
+/* =====================================================================
+   Admin panel.
+
+   The rest of the app is a cream page for children and their families. The
+   admin panel is a tool for staff, so it sits on white and puts a rail down
+   the left, which is what a person who administers software expects. The
+   borders, the offset shadows and the colour tokens are the same ones used
+   everywhere else, so it still reads as the same product.
+   ===================================================================== */
+
+.admin { min-height: 100vh; background: var(--paper); }
+.admin-layout { display: flex; align-items: stretch; min-height: 100vh; }
+
+/* ---- the rail ---- */
+.admin-rail {
+  width: 248px;
+  flex: none;
+  background: var(--paper);
+  border-right: 2px solid var(--navy);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.admin-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.admin-brand-mark {
+  height: 34px;
+  width: 34px;
+  flex: none;
+  border-radius: 10px;
+  border: 2px solid var(--navy);
+  background: var(--violet);
+  box-shadow: 3px 3px 0 var(--gold);
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 16px;
+}
+.admin-brand-text {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--navy);
+  line-height: 1.15;
+}
+.admin-brand-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-nav { display: flex; flex-direction: column; gap: 4px; }
+.admin-nav-group {
+  margin: 12px 0 4px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.admin-nav-link:hover { background: var(--cream); }
+/* The page you are on, marked the same way a button is: border and offset. */
+.admin-nav-link-on {
+  background: var(--gold);
+  border-color: var(--navy);
+  color: var(--navy);
+  box-shadow: 3px 3px 0 var(--navy);
+}
+.admin-nav-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.admin-nav-link-on .admin-nav-count { color: var(--navy); }
+
+.admin-rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.admin-who { font-weight: 700; font-size: 12.5px; color: var(--muted); word-break: break-all; }
+
+/* ---- the page beside it ---- */
+.admin-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.admin-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--navy);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.admin-content { padding: 26px 32px 56px; max-width: 1200px; width: 100%; }
+
+/* ---- breadcrumbs ---- */
+.crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--muted);
+}
+.crumbs a { color: var(--violet); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs-sep { color: var(--line); }
+.crumbs-here { color: var(--navy); font-weight: 800; }
+
+/* ---- page heading ---- */
+.admin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.admin-head h1 { font-size: 27px; color: var(--navy); margin-bottom: 6px; }
+.admin-head p { margin: 0; color: var(--muted); font-weight: 700; font-size: 14.5px; }
+
+/* ---- stat tiles ---- */
+.admin-stats {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  margin-bottom: 26px;
+}
+.stat {
+  border: 2px solid var(--navy);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--navy);
+  background: var(--paper);
+  padding: 16px 18px;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+.stat-accent { background: var(--gold); }
+.stat-value {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--navy);
+  line-height: 1.1;
+}
+.stat-label {
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.stat-accent .stat-label { color: var(--navy); }
+
+/* ---- tables ---- */
+.table-wrap {
+  border: 2px solid var(--navy);
+  border-radius: 14px;
+  box-shadow: 5px 5px 0 var(--navy);
+  background: var(--paper);
+  overflow-x: auto;
+}
+.table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 620px; }
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--cream);
+  border-bottom: 2px solid var(--navy);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.table td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.table tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover { background: var(--cream); }
+.table-main { font-weight: 800; color: var(--navy); }
+.table-sub { display: block; font-weight: 700; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.table-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.table-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* A count of what points at a row, which is also what blocks its deletion. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  padding: 2px 10px;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pill-on { border-color: var(--navy); background: var(--sky); color: var(--navy); }
+
+/* ---- forms and dialogs ---- */
+.admin-form { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.admin-form-wide { grid-column: 1 / -1; }
+
+.modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(39, 51, 92, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.modal {
+  width: 100%;
+  max-width: 560px;
+  background: var(--paper);
+  border: 2px solid var(--navy);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 var(--navy);
+  padding: 24px;
+  margin: auto;
+}
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.modal-head h2 { font-size: 20px; color: var(--navy); }
+.modal-note { margin: 4px 0 0; font-weight: 700; font-size: 13.5px; color: var(--muted); }
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* ---- loading ---- */
+.skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--cream) 25%, var(--line) 50%, var(--cream) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+.skeleton-row { height: 46px; margin-bottom: 8px; }
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+.spinner {
+  display: inline-block;
+  height: 15px;
+  width: 15px;
+  border: 2.5px solid var(--navy);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- sign in ---- */
+.admin-signin {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--paper);
+}
+.admin-signin-card { width: 100%; max-width: 400px; }
+.admin-signin-head { text-align: center; margin-bottom: 22px; }
+.admin-signin-head h1 { font-size: 24px; color: var(--navy); margin-bottom: 6px; }
+.admin-signin-head p { margin: 0; color: var(--muted); font-weight: 700; font-size: 14px; }
+
+/* =====================================================================
+   The rail becomes a top bar on anything narrower than a laptop.
+   ===================================================================== */
+
+@media (max-width: 900px) {
+  .admin-layout { flex-direction: column; }
+  .admin-topbar { display: flex; }
+
+  .admin-rail {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 70;
+    height: 100vh;
+    width: 270px;
+    box-shadow: 6px 0 0 var(--navy);
+    transform: translateX(-102%);
+    transition: transform 0.2s ease;
+  }
+  .admin-rail-open { transform: translateX(0); }
+
+  .admin-scrim { position: fixed; inset: 0; z-index: 65; background: rgba(39, 51, 92, 0.45); }
+  .admin-content { padding: 20px 16px 48px; }
+}
+
+@media (max-width: 560px) {
+  .admin-head h1 { font-size: 23px; }
+  .admin-stats { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .modal { padding: 18px; }
+  .modal-actions .btn-solid,
+  .modal-actions .btn-ghost,
+  .modal-actions .btn-danger { flex: 1; }
+}
+
+/* Wrapper for the shimmering rows that stand in for a table while it loads. */
+.skeleton-wrap { padding: 14px; box-shadow: none; }
+.skeleton-wrap .skeleton-row:last-child { margin-bottom: 0; }
+
+/* Visible to a screen reader, not on screen. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The course filter above a lesson list. */
+.filter-bar { margin-bottom: 16px; padding: 16px 18px; }
+.filter-field { margin-bottom: 0; max-width: 320px; }

@@ -12,7 +12,7 @@ import { authOptions } from "@/lib/auth";
 //   if (!who.ok) return who.response;
 //   ... who.studentId is now trustworthy
 
-type Role = "STUDENT" | "TEACHER" | "PARENT";
+type Role = "STUDENT" | "TEACHER" | "PARENT" | "ADMIN";
 
 type Denied = { ok: false; response: Response };
 
@@ -71,6 +71,13 @@ export async function requireTeacher(): Promise<
   if (!who.ok) return who;
   if (!who.teacherId) return deny(403, "This account has no teacher profile.");
   return { ...who, teacherId: who.teacherId };
+}
+
+// An admin has no profile row to narrow to, so this returns the identity as
+// it is. Everything an admin touches is keyed by the thing itself, a course or
+// a teacher, not by who they are.
+export async function requireAdmin(): Promise<Identity | Denied> {
+  return requireRole("ADMIN");
 }
 
 export async function requireParent(): Promise<
