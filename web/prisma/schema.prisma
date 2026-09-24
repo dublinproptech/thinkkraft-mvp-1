@@ -63,6 +63,10 @@ model Teacher {
   name      String
   email     String   @unique
   createdAt DateTime @default(now())
+  // Stamped by the approval queue while a teacher has it open. It is how the
+  // app knows whether anyone is watching, and so whether a hint has to wait
+  // for a person or may go straight to the child.
+  lastSeenAt DateTime?
 
   cohorts       Cohort[]
   approvedHints HintEvent[]
@@ -170,6 +174,12 @@ model HintEvent {
   // Set when the child closes the card. It hides the tip from them without
   // touching what the teacher approved, so the record stays intact.
   dismissedAt DateTime?
+
+  // Set when this hint reached the child with no teacher online to read it
+  // first. approvedById is null in that case, which on its own is
+  // indistinguishable from a data problem, so the fact is recorded outright.
+  // Teachers see everything carrying this stamp, after the event.
+  autoApprovedAt DateTime?
 }
 
 model SkillMastery {

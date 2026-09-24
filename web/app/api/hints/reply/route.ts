@@ -2,6 +2,7 @@ import { z } from "zod";
 import { requestFollowup } from "@/lib/aiHint";
 import { createHint, hintForStudent } from "@/lib/db/hints";
 import { requireStudent } from "@/lib/session";
+import { classify } from "@/lib/scope";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,14 @@ export async function POST(req: Request) {
     return Response.json({ error: "That tip is not available." }, { status: 409 });
   }
 
+  // Decided here, not by the model. A question about football is answered
+  // plainly, nothing is sent to the AI service, and no hint is filed: there is
+  // no Scratch gap to teach, so there is nothing for a teacher to approve.
+  const scope = classify(answer);
+  if (!scope.inScope) {
+    return Response.json({ status: "out-of-scope", reply: scope.reply });
+  }
+
   const ai = await requestFollowup(hint.diagnosis, hint.level, answer);
   if (!ai.hint) {
     return Response.json({ status: "none" });
@@ -48,7 +57,7 @@ export async function POST(req: Request) {
   // The child's own words are stored with the follow-up, so the teacher
   // approves the exchange rather than a sentence with no question in front of
   // it, and so anything worth acting on is visible to an adult.
-  const { hint: saved, duplicate } = await createHint({
+  const { hint: saved, duplicate, autoApproved } = await createHint({
     studentId: who.studentId,
     lessonId: hint.lessonId,
     diagnosis: hint.diagnosis,
@@ -59,8 +68,14 @@ export async function POST(req: Request) {
   });
 
   return Response.json({
-    status: duplicate && saved.status === "APPROVED" ? "already" : "pending",
+    // "sent" means it is already with the child because no teacher is online.
+    status: autoApproved
+      ? "sent"
+      : duplicate && saved.status === "APPROVED"
+        ? "already"
+        : "pending",
     hintId: saved.id,
     duplicate,
+    autoApproved,
   });
 }

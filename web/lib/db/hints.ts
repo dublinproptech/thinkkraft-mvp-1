@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { HintEvent } from "@/generated/prisma/client";
+import { isSupervised } from "@/lib/db/presence";
 
 // Filing a hint, without ever filing the same one twice.
 //
@@ -22,7 +23,7 @@ export async function createHint(data: {
   text: string;
   childAnswer?: string;
   answeredHintId?: string;
-}): Promise<{ hint: HintEvent; duplicate: boolean }> {
+}): Promise<{ hint: HintEvent; duplicate: boolean; autoApproved: boolean }> {
   // A reply is never a duplicate, whatever Milo says back. The child wrote
   // something, and dropping the row would drop their words with it.
   const existing = data.childAnswer
@@ -38,12 +39,29 @@ export async function createHint(data: {
           ],
         },
       });
-  if (existing) return { hint: existing, duplicate: true };
+  if (existing) {
+    return {
+      hint: existing,
+      duplicate: true,
+      autoApproved: existing.autoApprovedAt !== null,
+    };
+  }
+
+  // The approval gate, and the one condition under which it opens by itself.
+  //
+  // A hint normally waits for a teacher. When nobody is watching the queue,
+  // waiting means a child sits with no help at all until someone signs in,
+  // possibly the next day, so the hint goes straight out instead and the fact
+  // that it did is stamped on the row. isSupervised() answers "supervised" on
+  // any error, so a failure leaves the gate shut rather than open.
+  const supervised = await isSupervised();
 
   const hint = await prisma.hintEvent.create({
-    data: { ...data, status: "PROPOSED" },
+    data: supervised
+      ? { ...data, status: "PROPOSED" }
+      : { ...data, status: "APPROVED", autoApprovedAt: new Date() },
   });
-  return { hint, duplicate: false };
+  return { hint, duplicate: false, autoApproved: !supervised };
 }
 
 // Hints a teacher still needs to review.

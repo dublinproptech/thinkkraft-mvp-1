@@ -29,6 +29,7 @@ export type TeacherMinAggregateOutputType = {
   name: string | null
   email: string | null
   createdAt: Date | null
+  lastSeenAt: Date | null
 }
 
 export type TeacherMaxAggregateOutputType = {
@@ -36,6 +37,7 @@ export type TeacherMaxAggregateOutputType = {
   name: string | null
   email: string | null
   createdAt: Date | null
+  lastSeenAt: Date | null
 }
 
 export type TeacherCountAggregateOutputType = {
@@ -43,6 +45,7 @@ export type TeacherCountAggregateOutputType = {
   name: number
   email: number
   createdAt: number
+  lastSeenAt: number
   _all: number
 }
 
@@ -52,6 +55,7 @@ export type TeacherMinAggregateInputType = {
   name?: true
   email?: true
   createdAt?: true
+  lastSeenAt?: true
 }
 
 export type TeacherMaxAggregateInputType = {
@@ -59,6 +63,7 @@ export type TeacherMaxAggregateInputType = {
   name?: true
   email?: true
   createdAt?: true
+  lastSeenAt?: true
 }
 
 export type TeacherCountAggregateInputType = {
@@ -66,6 +71,7 @@ export type TeacherCountAggregateInputType = {
   name?: true
   email?: true
   createdAt?: true
+  lastSeenAt?: true
   _all?: true
 }
 
@@ -146,6 +152,7 @@ export type TeacherGroupByOutputType = {
   name: string
   email: string
   createdAt: Date
+  lastSeenAt: Date | null
   _count: TeacherCountAggregateOutputType | null
   _min: TeacherMinAggregateOutputType | null
   _max: TeacherMaxAggregateOutputType | null
@@ -174,6 +181,7 @@ export type TeacherWhereInput = {
   name?: Prisma.StringFilter<"Teacher"> | string
   email?: Prisma.StringFilter<"Teacher"> | string
   createdAt?: Prisma.DateTimeFilter<"Teacher"> | Date | string
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"Teacher"> | Date | string | null
   cohorts?: Prisma.CohortListRelationFilter
   approvedHints?: Prisma.HintEventListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -184,6 +192,7 @@ export type TeacherOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cohorts?: Prisma.CohortOrderByRelationAggregateInput
   approvedHints?: Prisma.HintEventOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
@@ -197,6 +206,7 @@ export type TeacherWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TeacherWhereInput | Prisma.TeacherWhereInput[]
   name?: Prisma.StringFilter<"Teacher"> | string
   createdAt?: Prisma.DateTimeFilter<"Teacher"> | Date | string
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"Teacher"> | Date | string | null
   cohorts?: Prisma.CohortListRelationFilter
   approvedHints?: Prisma.HintEventListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -207,6 +217,7 @@ export type TeacherOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TeacherCountOrderByAggregateInput
   _max?: Prisma.TeacherMaxOrderByAggregateInput
   _min?: Prisma.TeacherMinOrderByAggregateInput
@@ -220,6 +231,7 @@ export type TeacherScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Teacher"> | string
   email?: Prisma.StringWithAggregatesFilter<"Teacher"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Teacher"> | Date | string
+  lastSeenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Teacher"> | Date | string | null
 }
 
 export type TeacherCreateInput = {
@@ -227,6 +239,7 @@ export type TeacherCreateInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   cohorts?: Prisma.CohortCreateNestedManyWithoutTeacherInput
   approvedHints?: Prisma.HintEventCreateNestedManyWithoutApprovedByInput
   user?: Prisma.UserCreateNestedOneWithoutTeacherInput
@@ -237,6 +250,7 @@ export type TeacherUncheckedCreateInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   cohorts?: Prisma.CohortUncheckedCreateNestedManyWithoutTeacherInput
   approvedHints?: Prisma.HintEventUncheckedCreateNestedManyWithoutApprovedByInput
   user?: Prisma.UserUncheckedCreateNestedOneWithoutTeacherInput
@@ -247,6 +261,7 @@ export type TeacherUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cohorts?: Prisma.CohortUpdateManyWithoutTeacherNestedInput
   approvedHints?: Prisma.HintEventUpdateManyWithoutApprovedByNestedInput
   user?: Prisma.UserUpdateOneWithoutTeacherNestedInput
@@ -257,6 +272,7 @@ export type TeacherUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cohorts?: Prisma.CohortUncheckedUpdateManyWithoutTeacherNestedInput
   approvedHints?: Prisma.HintEventUncheckedUpdateManyWithoutApprovedByNestedInput
   user?: Prisma.UserUncheckedUpdateOneWithoutTeacherNestedInput
@@ -267,6 +283,7 @@ export type TeacherCreateManyInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
 }
 
 export type TeacherUpdateManyMutationInput = {
@@ -274,6 +291,7 @@ export type TeacherUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TeacherUncheckedUpdateManyInput = {
@@ -281,6 +299,7 @@ export type TeacherUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TeacherNullableScalarRelationFilter = {
@@ -293,6 +312,7 @@ export type TeacherCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
 }
 
 export type TeacherMaxOrderByAggregateInput = {
@@ -300,6 +320,7 @@ export type TeacherMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
 }
 
 export type TeacherMinOrderByAggregateInput = {
@@ -307,6 +328,7 @@ export type TeacherMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
 }
 
 export type TeacherScalarRelationFilter = {
@@ -328,6 +350,10 @@ export type TeacherUpdateOneWithoutUserNestedInput = {
   delete?: Prisma.TeacherWhereInput | boolean
   connect?: Prisma.TeacherWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TeacherUpdateToOneWithWhereWithoutUserInput, Prisma.TeacherUpdateWithoutUserInput>, Prisma.TeacherUncheckedUpdateWithoutUserInput>
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type TeacherCreateNestedOneWithoutCohortsInput = {
@@ -365,6 +391,7 @@ export type TeacherCreateWithoutUserInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   cohorts?: Prisma.CohortCreateNestedManyWithoutTeacherInput
   approvedHints?: Prisma.HintEventCreateNestedManyWithoutApprovedByInput
 }
@@ -374,6 +401,7 @@ export type TeacherUncheckedCreateWithoutUserInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   cohorts?: Prisma.CohortUncheckedCreateNestedManyWithoutTeacherInput
   approvedHints?: Prisma.HintEventUncheckedCreateNestedManyWithoutApprovedByInput
 }
@@ -399,6 +427,7 @@ export type TeacherUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cohorts?: Prisma.CohortUpdateManyWithoutTeacherNestedInput
   approvedHints?: Prisma.HintEventUpdateManyWithoutApprovedByNestedInput
 }
@@ -408,6 +437,7 @@ export type TeacherUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cohorts?: Prisma.CohortUncheckedUpdateManyWithoutTeacherNestedInput
   approvedHints?: Prisma.HintEventUncheckedUpdateManyWithoutApprovedByNestedInput
 }
@@ -417,6 +447,7 @@ export type TeacherCreateWithoutCohortsInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   approvedHints?: Prisma.HintEventCreateNestedManyWithoutApprovedByInput
   user?: Prisma.UserCreateNestedOneWithoutTeacherInput
 }
@@ -426,6 +457,7 @@ export type TeacherUncheckedCreateWithoutCohortsInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   approvedHints?: Prisma.HintEventUncheckedCreateNestedManyWithoutApprovedByInput
   user?: Prisma.UserUncheckedCreateNestedOneWithoutTeacherInput
 }
@@ -451,6 +483,7 @@ export type TeacherUpdateWithoutCohortsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedHints?: Prisma.HintEventUpdateManyWithoutApprovedByNestedInput
   user?: Prisma.UserUpdateOneWithoutTeacherNestedInput
 }
@@ -460,6 +493,7 @@ export type TeacherUncheckedUpdateWithoutCohortsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedHints?: Prisma.HintEventUncheckedUpdateManyWithoutApprovedByNestedInput
   user?: Prisma.UserUncheckedUpdateOneWithoutTeacherNestedInput
 }
@@ -469,6 +503,7 @@ export type TeacherCreateWithoutApprovedHintsInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   cohorts?: Prisma.CohortCreateNestedManyWithoutTeacherInput
   user?: Prisma.UserCreateNestedOneWithoutTeacherInput
 }
@@ -478,6 +513,7 @@ export type TeacherUncheckedCreateWithoutApprovedHintsInput = {
   name: string
   email: string
   createdAt?: Date | string
+  lastSeenAt?: Date | string | null
   cohorts?: Prisma.CohortUncheckedCreateNestedManyWithoutTeacherInput
   user?: Prisma.UserUncheckedCreateNestedOneWithoutTeacherInput
 }
@@ -503,6 +539,7 @@ export type TeacherUpdateWithoutApprovedHintsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cohorts?: Prisma.CohortUpdateManyWithoutTeacherNestedInput
   user?: Prisma.UserUpdateOneWithoutTeacherNestedInput
 }
@@ -512,6 +549,7 @@ export type TeacherUncheckedUpdateWithoutApprovedHintsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cohorts?: Prisma.CohortUncheckedUpdateManyWithoutTeacherNestedInput
   user?: Prisma.UserUncheckedUpdateOneWithoutTeacherNestedInput
 }
@@ -561,6 +599,7 @@ export type TeacherSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   email?: boolean
   createdAt?: boolean
+  lastSeenAt?: boolean
   cohorts?: boolean | Prisma.Teacher$cohortsArgs<ExtArgs>
   approvedHints?: boolean | Prisma.Teacher$approvedHintsArgs<ExtArgs>
   user?: boolean | Prisma.Teacher$userArgs<ExtArgs>
@@ -572,6 +611,7 @@ export type TeacherSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   email?: boolean
   createdAt?: boolean
+  lastSeenAt?: boolean
 }, ExtArgs["result"]["teacher"]>
 
 export type TeacherSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -579,6 +619,7 @@ export type TeacherSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   email?: boolean
   createdAt?: boolean
+  lastSeenAt?: boolean
 }, ExtArgs["result"]["teacher"]>
 
 export type TeacherSelectScalar = {
@@ -586,9 +627,10 @@ export type TeacherSelectScalar = {
   name?: boolean
   email?: boolean
   createdAt?: boolean
+  lastSeenAt?: boolean
 }
 
-export type TeacherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "createdAt", ExtArgs["result"]["teacher"]>
+export type TeacherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "createdAt" | "lastSeenAt", ExtArgs["result"]["teacher"]>
 export type TeacherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cohorts?: boolean | Prisma.Teacher$cohortsArgs<ExtArgs>
   approvedHints?: boolean | Prisma.Teacher$approvedHintsArgs<ExtArgs>
@@ -610,6 +652,7 @@ export type $TeacherPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     email: string
     createdAt: Date
+    lastSeenAt: Date | null
   }, ExtArgs["result"]["teacher"]>
   composites: {}
 }
@@ -1040,6 +1083,7 @@ export interface TeacherFieldRefs {
   readonly name: Prisma.FieldRef<"Teacher", 'String'>
   readonly email: Prisma.FieldRef<"Teacher", 'String'>
   readonly createdAt: Prisma.FieldRef<"Teacher", 'DateTime'>
+  readonly lastSeenAt: Prisma.FieldRef<"Teacher", 'DateTime'>
 }
     
 

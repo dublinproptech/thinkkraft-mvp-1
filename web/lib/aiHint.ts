@@ -18,6 +18,9 @@ export async function requestHint(
   const res = await fetch(url, { method: "POST", body: form });
   if (!res.ok) throw new Error(`AI service returned ${res.status}`);
   return res.json() as Promise<{
+    // The parsed shape of the project. Correctness comes from the checker, but
+    // the raw counts are what progress is recorded from.
+    signals?: { block_count: number; [k: string]: unknown };
     result: { correct: boolean; diagnosis: string | null };
     hint: { level: number; text: string } | null;
   }>;

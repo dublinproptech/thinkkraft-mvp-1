@@ -139,6 +139,10 @@ export default function HintPanel({
       if (r.correct) {
         setGood(true);
         setStatus("Nice work. That looks right.");
+      } else if (r.status === "sent") {
+        // No teacher is online, so the tip is already on its way rather than
+        // sitting in a queue nobody is reading.
+        setStatus("Milo has a tip for you, just below.");
       } else if (r.status === "already") {
         setStatus("Milo has already told you about this one. His tip is below.");
       } else if (r.status === "pending") {
@@ -168,15 +172,28 @@ export default function HintPanel({
         return;
       }
       const r = await res.json();
+
+      // A question about something other than their project. Milo says so
+      // himself; nothing was sent to the AI and nothing was filed.
+      if (r.status === "out-of-scope") {
+        setReplyTo(null);
+        setReply("");
+        setGood(false);
+        setStatus(r.reply);
+        return;
+      }
+
       setReplyTo(null);
       setReply("");
       setGood(false);
       // Even an answer goes through the teacher. Say so, rather than leaving a
       // child waiting for a reply that is sitting in a queue.
       setStatus(
-        r.status === "already"
-          ? "Milo has already answered that one. His tip is below."
-          : "Milo read your answer. Your teacher is checking his reply first.",
+        r.status === "sent"
+          ? "Milo read your answer. His reply is just below."
+          : r.status === "already"
+            ? "Milo has already answered that one. His tip is below."
+            : "Milo read your answer. Your teacher is checking his reply first.",
       );
     } catch {
       setStatus("Something went wrong. Try again in a moment.");

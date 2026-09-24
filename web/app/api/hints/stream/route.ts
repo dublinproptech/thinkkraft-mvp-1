@@ -1,5 +1,6 @@
 import { approvedHintsForStudent } from "@/lib/db/hints";
 import { requireStudent } from "@/lib/session";
+import { releaseStaleHints } from "@/lib/db/presence";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,13 @@ export async function GET(req: Request) {
 
       const tick = async () => {
         if (closed) return;
+
+        // A hint raised while a teacher was online, then left unread because
+        // they went home. Releasing it here means no background job: the
+        // child's own open connection is what notices, and only once nobody
+        // has been seen for long enough.
+        await releaseStaleHints(studentId).catch(() => {});
+
         const hints = await approvedHintsForStudent(studentId, lessonId);
         for (const h of hints) {
           if (!sent.has(h.id)) {

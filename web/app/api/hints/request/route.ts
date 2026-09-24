@@ -3,6 +3,7 @@ import { requestHint } from "@/lib/aiHint";
 import { createHint } from "@/lib/db/hints";
 import { requireStudent } from "@/lib/session";
 import { projectBelongsToStudent } from "@/lib/db/projects";
+import { upsertProgress } from "@/lib/db/progress";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,20 @@ export async function POST(req: Request) {
       return Response.json({ correct: false, hint: null, error: "AI failed" }, { status: 502 });
     }
 
+    // Every check is a reading of where the child is, so record it. This is
+    // the one moment the app knows both whether the lesson is met and how much
+    // the child has built, and it costs the child nothing: they pressed a
+    // button they were pressing anyway.
+    await upsertProgress({
+      studentId: who.studentId,
+      lessonId,
+      completed: ai.result.correct,
+      blocksUsed: ai.signals?.block_count ?? 0,
+    }).catch((e) => {
+      // A progress row is not worth failing the child's hint over.
+      console.error("progress not saved:", e);
+    });
+
     if (ai.result.correct) {
       return Response.json({ correct: true });
     }
@@ -50,7 +65,7 @@ export async function POST(req: Request) {
     }
 
     // Store as a pending hint; it is NOT returned to the child yet.
-    const { hint, duplicate } = await createHint({
+    const { hint, duplicate, autoApproved } = await createHint({
       studentId: who.studentId,
       lessonId,
       diagnosis: ai.result.diagnosis,
@@ -61,8 +76,16 @@ export async function POST(req: Request) {
     return Response.json({
       correct: false,
       hintId: hint.id,
-      status: duplicate ? (hint.status === "APPROVED" ? "already" : "pending") : "pending",
+      // "sent" means no teacher was watching the queue, so it went straight
+      // to the child rather than waiting for an approval nobody was there to
+      // give.
+      status: autoApproved
+        ? "sent"
+        : duplicate && hint.status === "APPROVED"
+          ? "already"
+          : "pending",
       duplicate,
+      autoApproved,
     });
   } catch (error) {
     // If Prisma, the Database, or the Fetch call fails, catch it here!
