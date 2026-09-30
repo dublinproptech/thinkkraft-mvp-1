@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import AppBar from "../components/AppBar";
+import SkillsOverview from "./SkillsOverview";
 
 // A hint waiting on a teacher. The queue is every PROPOSED hint, reactive and
 // proactive alike: both go through the same gate before a child sees them.
@@ -320,6 +321,8 @@ export default function TeacherDashboard() {
           </div>
         )}
       </section>
+
+      <SkillsOverview />
       </main>
     </>
   );

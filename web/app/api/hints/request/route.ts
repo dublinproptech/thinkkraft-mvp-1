@@ -3,6 +3,9 @@ import { requestHint } from "@/lib/aiHint";
 import { createHint } from "@/lib/db/hints";
 import { requireStudent } from "@/lib/session";
 import { projectBelongsToStudent } from "@/lib/db/projects";
+import { updateMastery } from "@/lib/aiHint";
+import { applyUpdate, evidenceHistory, recordEvidenceRows } from "@/lib/db/mastery";
+import { skillForDiagnosis, targetSkillsFor } from "@/lib/skillMap";
 import { upsertProgress } from "@/lib/db/progress";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +46,11 @@ export async function POST(req: Request) {
       return Response.json({ correct: false, hint: null, error: "AI failed" }, { status: 502 });
     }
 
+    // Two separate records, both taken from this one check, neither of which
+    // the child asked for and neither of which is worth failing their hint
+    // over. Progress is where they are in the lesson. Evidence is what the
+    // check says about the underlying skill. The response shape is unchanged.
+
     // Every check is a reading of where the child is, so record it. This is
     // the one moment the app knows both whether the lesson is met and how much
     // the child has built, and it costs the child nothing: they pressed a
@@ -56,6 +64,14 @@ export async function POST(req: Request) {
       // A progress row is not worth failing the child's hint over.
       console.error("progress not saved:", e);
     });
+
+    await recordEvidence({
+      studentId: who.studentId,
+      lessonId,
+      correct: ai.result.correct,
+      diagnosis: ai.result.diagnosis,
+      hintLevel: ai.hint?.level ?? 0,
+    }).catch((e) => console.error("mastery not updated:", e));
 
     if (ai.result.correct) {
       return Response.json({ correct: true });
@@ -92,4 +108,38 @@ export async function POST(req: Request) {
     console.error("❌ Backend crash in request route:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+// A check of a child's lesson work, as evidence about one skill.
+//
+// Correct means they met the lesson goal, which is evidence for the skill the
+// lesson is about. Incorrect means the checker named a gap, which is evidence
+// against the skill that gap belongs to. Either way it is one skill, not all
+// of them: a child who cannot loop has not thereby shown anything about
+// variables.
+async function recordEvidence(args: {
+  studentId: string;
+  lessonId: string;
+  correct: boolean;
+  diagnosis: string | null;
+  hintLevel: number;
+}) {
+  const { studentId, lessonId, correct, diagnosis, hintLevel } = args;
+
+  const skill = correct
+    ? targetSkillsFor(lessonId)[0]
+    : skillForDiagnosis(diagnosis);
+
+  // Nothing to say about any particular skill, so say nothing.
+  if (!skill) return;
+
+  // Write what happened first, then recompute the estimate from everything on
+  // record for that skill. Adjusting the stored estimate in place loses one of
+  // two updates that land together; recomputing from the history does not.
+  await recordEvidenceRows(studentId, [
+    { skill, correct, hintLevel, source: "check" },
+  ]);
+
+  const history = await evidenceHistory(studentId, [skill]);
+  const { posterior } = await updateMastery({}, history);
+  await applyUpdate({ studentId, posterior });
 }

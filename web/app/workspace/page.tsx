@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HintPanel from "./HintPanel";
+import SkillsCard from "./SkillsCard";
 import AppBar from "../components/AppBar";
 
 // What the editor sends back when asked for the child's project.
@@ -257,7 +258,7 @@ function WorkspaceContent() {
         // Keyed by lesson so moving to another one starts a fresh panel rather
         // than leaving the previous lesson's tips on screen.
         <HintPanel
-          key={lessonId}
+          key={`hints-${lessonId}`}
           studentId={studentId}
           lessonId={lessonId}
           captureProject={captureProject}
@@ -265,6 +266,13 @@ function WorkspaceContent() {
             showToast(`Your teacher approved a tip: ${text}`, "success")
           }
         />
+      )}
+
+      {/* What they are getting good at, and the one thing to do next. Below
+          the hints because a hint is about right now and this is about the
+          longer run. */}
+      {studentId && lessonId && (
+        <SkillsCard key={`skills-${lessonId}`} studentId={studentId} lessonId={lessonId} />
       )}
 
       <div className="panel">

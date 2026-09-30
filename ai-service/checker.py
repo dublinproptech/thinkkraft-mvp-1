@@ -34,3 +34,16 @@ def check(lesson_id: str, signals: dict) -> dict:
             return {"correct": False, "diagnosis": DIAGNOSIS_FOR[concept]}
 
     return {"correct": True, "diagnosis": None}
+
+
+def check_signals(signals: dict, required: list) -> dict:
+    """
+    Does this project show every signal a practice task asked for?
+
+    Lessons are checked against LESSON_REQUIREMENTS above. A practice task is
+    not a lesson: it belongs to a skill and names its own signals, so it is
+    checked against those. Same deterministic rule, different source for the
+    list.
+    """
+    missing = [s for s in (required or []) if not signals.get(s)]
+    return {"correct": not missing, "missing": missing}

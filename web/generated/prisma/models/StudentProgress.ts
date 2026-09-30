@@ -475,10 +475,6 @@ export type StudentProgressUncheckedUpdateManyWithoutLessonNestedInput = {
   deleteMany?: Prisma.StudentProgressScalarWhereInput | Prisma.StudentProgressScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type StudentProgressCreateWithoutStudentInput = {
   id?: string
   completed?: boolean
