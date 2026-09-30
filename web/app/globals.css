@@ -925,3 +925,7 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 800; margin: 0; }
 /* The course filter above a lesson list. */
 .filter-bar { margin-bottom: 16px; padding: 16px 18px; }
 .filter-field { margin-bottom: 0; max-width: 320px; }
+
+/* Sections stacked under the approval queue on the teacher page. */
+.section-gap { margin-top: 20px; }
+.auto-answer { background: var(--mint); border-radius: 8px; padding: 7px 10px; margin: 6px 0; font-weight: 700; }

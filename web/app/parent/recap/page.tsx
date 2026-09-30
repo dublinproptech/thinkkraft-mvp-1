@@ -41,6 +41,13 @@ export default async function WeeklyRecapPage({
         orderBy: { updatedAt: "desc" },
         take: 1,
       },
+      // Written every time the child presses Check my work, so this is a
+      // record of what they actually did rather than anything they had to fill
+      // in.
+      studentProgress: {
+        orderBy: { updatedAt: "desc" },
+        include: { lesson: { select: { title: true, goal: true, orderNo: true } } },
+      },
     },
   });
 
@@ -69,6 +76,16 @@ export default async function WeeklyRecapPage({
   }
 
   const currentFocus = student.skills[0]?.skill ?? "Foundational concepts";
+
+  // How many hints went out without a teacher reading them first. The page
+  // used to promise a parent that every hint was approved, which stopped being
+  // true the moment hints could be released when nobody was on duty. Saying so
+  // plainly is the whole value of the promise.
+  const unsupervised = await prisma.hintEvent.count({
+    where: { studentId: student.id, autoApprovedAt: { not: null } },
+  });
+
+  const done = student.studentProgress.filter((p) => p.completed).length;
 
   return (
     <>
@@ -110,10 +127,63 @@ export default async function WeeklyRecapPage({
           </div>
           <h2 style={{ color: "var(--navy)", marginBottom: 12 }}>{currentFocus}</h2>
           <p style={{ lineHeight: 1.6, margin: 0 }}>
-            {student.displayName} is working on <strong>{currentFocus}</strong>. Every
-            hint the AI tutor offered was read and approved by their teacher before
-            {student.displayName} saw it.
+            {student.displayName} is working on <strong>{currentFocus}</strong>.{" "}
+            {unsupervised === 0 ? (
+              <>
+                Every hint the AI tutor offered was read and approved by their
+                teacher before {student.displayName} saw it.
+              </>
+            ) : (
+              <>
+                Most hints were read and approved by their teacher first.{" "}
+                {unsupervised === 1 ? "One hint" : `${unsupervised} hints`} went
+                straight to {student.displayName} because no teacher was online
+                at the time. Their teacher can see those too.
+              </>
+            )}
           </p>
+        </section>
+
+        <section className="panel section-gap">
+          <h2 className="panel-title">Lessons</h2>
+          <p className="muted panel-note">
+            {student.studentProgress.length === 0
+              ? "Nothing yet. This fills in as they work."
+              : `${done} of ${student.studentProgress.length} finished so far.`}
+          </p>
+
+          {student.studentProgress.length > 0 && (
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Lesson</th>
+                    <th>Blocks used</th>
+                    <th>State</th>
+                    <th>Last worked on</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {student.studentProgress.map((p) => (
+                    <tr key={p.id}>
+                      <td className="table-main">
+                        {p.lesson?.title ?? p.lesson?.goal ?? p.lessonId}
+                      </td>
+                      <td className="table-num">{p.blocksUsed}</td>
+                      <td>
+                        <span className={p.completed ? "pill pill-on" : "pill"}>
+                          {p.completed ? "Finished" : "In progress"}
+                        </span>
+                      </td>
+                      <td className="table-num">
+                        {new Date(p.updatedAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       </main>
     </>

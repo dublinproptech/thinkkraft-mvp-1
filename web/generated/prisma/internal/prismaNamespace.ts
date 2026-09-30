@@ -1470,7 +1470,8 @@ export const TeacherScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  lastSeenAt: 'lastSeenAt'
 } as const
 
 export type TeacherScalarFieldEnum = (typeof TeacherScalarFieldEnum)[keyof typeof TeacherScalarFieldEnum]
@@ -1542,7 +1543,8 @@ export const HintEventScalarFieldEnum = {
   approvedById: 'approvedById',
   childAnswer: 'childAnswer',
   answeredHintId: 'answeredHintId',
-  dismissedAt: 'dismissedAt'
+  dismissedAt: 'dismissedAt',
+  autoApprovedAt: 'autoApprovedAt'
 } as const
 
 export type HintEventScalarFieldEnum = (typeof HintEventScalarFieldEnum)[keyof typeof HintEventScalarFieldEnum]
