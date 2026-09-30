@@ -6,6 +6,7 @@ import { projectBelongsToStudent } from "@/lib/db/projects";
 import { updateMastery } from "@/lib/aiHint";
 import { applyUpdate, evidenceHistory, recordEvidenceRows } from "@/lib/db/mastery";
 import { skillForDiagnosis, targetSkillsFor } from "@/lib/skillMap";
+import { upsertProgress } from "@/lib/db/progress";
 
 export const dynamic = "force-dynamic";
 
@@ -45,10 +46,25 @@ export async function POST(req: Request) {
       return Response.json({ correct: false, hint: null, error: "AI failed" }, { status: 502 });
     }
 
-    // Record what this check says about the child's skills, then update the
-    // estimate. Wrapped so a learner-model failure cannot cost the child their
-    // hint: this is a side record, not the thing they asked for. The response
-    // shape below is unchanged.
+    // Two separate records, both taken from this one check, neither of which
+    // the child asked for and neither of which is worth failing their hint
+    // over. Progress is where they are in the lesson. Evidence is what the
+    // check says about the underlying skill. The response shape is unchanged.
+
+    // Every check is a reading of where the child is, so record it. This is
+    // the one moment the app knows both whether the lesson is met and how much
+    // the child has built, and it costs the child nothing: they pressed a
+    // button they were pressing anyway.
+    await upsertProgress({
+      studentId: who.studentId,
+      lessonId,
+      completed: ai.result.correct,
+      blocksUsed: ai.signals?.block_count ?? 0,
+    }).catch((e) => {
+      // A progress row is not worth failing the child's hint over.
+      console.error("progress not saved:", e);
+    });
+
     await recordEvidence({
       studentId: who.studentId,
       lessonId,
@@ -65,7 +81,7 @@ export async function POST(req: Request) {
     }
 
     // Store as a pending hint; it is NOT returned to the child yet.
-    const { hint, duplicate } = await createHint({
+    const { hint, duplicate, autoApproved } = await createHint({
       studentId: who.studentId,
       lessonId,
       diagnosis: ai.result.diagnosis,
@@ -76,8 +92,16 @@ export async function POST(req: Request) {
     return Response.json({
       correct: false,
       hintId: hint.id,
-      status: duplicate ? (hint.status === "APPROVED" ? "already" : "pending") : "pending",
+      // "sent" means no teacher was watching the queue, so it went straight
+      // to the child rather than waiting for an approval nobody was there to
+      // give.
+      status: autoApproved
+        ? "sent"
+        : duplicate && hint.status === "APPROVED"
+          ? "already"
+          : "pending",
       duplicate,
+      autoApproved,
     });
   } catch (error) {
     // If Prisma, the Database, or the Fetch call fails, catch it here!
