@@ -1,0 +1,132 @@
+# The skill map.
+#
+# Every skill a child can be weak at, what it depends on, how the parser can
+# tell whether they have used it, and what to say when they need teaching.
+#
+# prerequisites are what must come first. The planner walks these to find the
+# real gap: a child who cannot make a loop work may actually be stuck on
+# motion, and teaching loops again would not help.
+#
+# approved is false on every entry. Nothing here reaches a child until a person
+# has read it, which is the same rule the hints follow. Set it to true once the
+# text has been checked.
+#
+# Text is for ages 9 to 13: short sentences, no jargon that has not been
+# explained, and never more than a few lines at a time.
+
+skills:
+  - id: events
+    name: Starting your project
+    prerequisites: []
+    signal: has_green_flag
+    micro_lesson:
+      explanation: >-
+        Your project needs to know when to wake up. That is what the green flag
+        is for. When someone clicks it, the blocks underneath start running,
+        from the top to the bottom.
+      worked_example: >-
+        Go to the yellow Events blocks and drag out "when green flag clicked".
+        Put it at the very top of your script. Now click the green flag and
+        watch what happens.
+    practice:
+      prompt: >-
+        Make your sprite do one thing when the green flag is clicked. Anything
+        at all, as long as it starts on its own.
+      required_signals: [has_green_flag]
+    approved: false
+
+  - id: sequencing
+    name: Putting steps in order
+    prerequisites: [events]
+    signal: block_count
+    micro_lesson:
+      explanation: >-
+        Blocks run in order, one after another, from the top down. If two
+        blocks are the wrong way round, your sprite does the right things in
+        the wrong order, which usually looks like a bug.
+      worked_example: >-
+        Snap two blocks together under your green flag block. Click the flag
+        and watch which one happens first. Now swap them and watch again.
+    practice:
+      prompt: >-
+        Build a script with a green flag block and at least two blocks joined
+        underneath it, in the order you want them to happen.
+      required_signals: [has_green_flag]
+    approved: false
+
+  - id: motion
+    name: Making things move
+    prerequisites: [events, sequencing]
+    signal: has_move
+    micro_lesson:
+      explanation: >-
+        A sprite does not move by itself. You have to tell it to, using the
+        blue Motion blocks. "move 10 steps" nudges it a little way in the
+        direction it is facing.
+      worked_example: >-
+        Drag "move 10 steps" from Motion and join it under your green flag
+        block. Click the flag. Your sprite hops across a little. Try changing
+        10 to 50 and click again.
+    practice:
+      prompt: >-
+        Make your sprite move when the green flag is clicked.
+      required_signals: [has_green_flag, has_move]
+    approved: false
+
+  - id: loops
+    name: Repeating things
+    prerequisites: [motion, sequencing]
+    signal: has_loop
+    micro_lesson:
+      explanation: >-
+        If you want something to happen again and again, you do not need to
+        add the same block over and over. A loop does the repeating for you.
+        "forever" keeps going, and "repeat 10" does it ten times.
+      worked_example: >-
+        Take a "forever" block from Control. Drop your "move 10 steps" block
+        inside it, so the loop wraps around it. Click the green flag. Your
+        sprite keeps going instead of stopping after one hop.
+    practice:
+      prompt: >-
+        Make your sprite keep moving, without clicking the green flag more
+        than once.
+      required_signals: [has_green_flag, has_move, has_loop]
+    approved: false
+
+  - id: conditionals
+    name: Making choices
+    prerequisites: [sequencing, motion]
+    signal: has_conditional
+    micro_lesson:
+      explanation: >-
+        Sometimes you only want something to happen when something else is
+        true. That is what an "if" block is for. It checks something, and only
+        runs the blocks inside when the answer is yes.
+      worked_example: >-
+        Take an "if then" block from Control. Put a check inside the top, like
+        "touching edge". Put what you want to happen inside the middle. Now it
+        only happens when your sprite reaches the edge.
+    practice:
+      prompt: >-
+        Make something happen only when a condition is true, using an if block.
+      required_signals: [has_green_flag, has_conditional]
+    approved: false
+
+  - id: variables
+    name: Remembering numbers
+    prerequisites: [sequencing]
+    signal: has_variable
+    micro_lesson:
+      explanation: >-
+        A variable is a box your project can put a number in and look at later.
+        A score is a variable. So is a timer, or how many lives are left.
+      worked_example: >-
+        In Variables, click "Make a Variable" and call it score. Then use
+        "set score to 0" at the start, and "change score by 1" whenever
+        something good happens.
+    practice:
+      prompt: >-
+        Make a variable and use it in your project, like a score that starts
+        at zero.
+      required_signals: [has_variable]
+    approved: false

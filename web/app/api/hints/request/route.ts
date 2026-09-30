@@ -3,6 +3,9 @@ import { requestHint } from "@/lib/aiHint";
 import { createHint } from "@/lib/db/hints";
 import { requireStudent } from "@/lib/session";
 import { projectBelongsToStudent } from "@/lib/db/projects";
+import { updateMastery } from "@/lib/aiHint";
+import { applyUpdate, evidenceHistory, recordEvidenceRows } from "@/lib/db/mastery";
+import { skillForDiagnosis, targetSkillsFor } from "@/lib/skillMap";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +45,18 @@ export async function POST(req: Request) {
       return Response.json({ correct: false, hint: null, error: "AI failed" }, { status: 502 });
     }
 
+    // Record what this check says about the child's skills, then update the
+    // estimate. Wrapped so a learner-model failure cannot cost the child their
+    // hint: this is a side record, not the thing they asked for. The response
+    // shape below is unchanged.
+    await recordEvidence({
+      studentId: who.studentId,
+      lessonId,
+      correct: ai.result.correct,
+      diagnosis: ai.result.diagnosis,
+      hintLevel: ai.hint?.level ?? 0,
+    }).catch((e) => console.error("mastery not updated:", e));
+
     if (ai.result.correct) {
       return Response.json({ correct: true });
     }
@@ -69,4 +84,38 @@ export async function POST(req: Request) {
     console.error("❌ Backend crash in request route:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+// A check of a child's lesson work, as evidence about one skill.
+//
+// Correct means they met the lesson goal, which is evidence for the skill the
+// lesson is about. Incorrect means the checker named a gap, which is evidence
+// against the skill that gap belongs to. Either way it is one skill, not all
+// of them: a child who cannot loop has not thereby shown anything about
+// variables.
+async function recordEvidence(args: {
+  studentId: string;
+  lessonId: string;
+  correct: boolean;
+  diagnosis: string | null;
+  hintLevel: number;
+}) {
+  const { studentId, lessonId, correct, diagnosis, hintLevel } = args;
+
+  const skill = correct
+    ? targetSkillsFor(lessonId)[0]
+    : skillForDiagnosis(diagnosis);
+
+  // Nothing to say about any particular skill, so say nothing.
+  if (!skill) return;
+
+  // Write what happened first, then recompute the estimate from everything on
+  // record for that skill. Adjusting the stored estimate in place loses one of
+  // two updates that land together; recomputing from the history does not.
+  await recordEvidenceRows(studentId, [
+    { skill, correct, hintLevel, source: "check" },
+  ]);
+
+  const history = await evidenceHistory(studentId, [skill]);
+  const { posterior } = await updateMastery({}, history);
+  await applyUpdate({ studentId, posterior });
 }

@@ -408,6 +408,7 @@ export const ModelName = {
   Project: 'Project',
   HintEvent: 'HintEvent',
   SkillMastery: 'SkillMastery',
+  LearningEvidence: 'LearningEvidence',
   StudentProgress: 'StudentProgress',
   Consent: 'Consent'
 } as const
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "parent" | "student" | "teacher" | "course" | "lesson" | "cohort" | "enrolment" | "project" | "hintEvent" | "skillMastery" | "studentProgress" | "consent"
+    modelProps: "user" | "parent" | "student" | "teacher" | "course" | "lesson" | "cohort" | "enrolment" | "project" | "hintEvent" | "skillMastery" | "learningEvidence" | "studentProgress" | "consent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1243,6 +1244,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LearningEvidence: {
+      payload: Prisma.$LearningEvidencePayload<ExtArgs>
+      fields: Prisma.LearningEvidenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LearningEvidenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LearningEvidenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>
+        }
+        findFirst: {
+          args: Prisma.LearningEvidenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LearningEvidenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>
+        }
+        findMany: {
+          args: Prisma.LearningEvidenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>[]
+        }
+        create: {
+          args: Prisma.LearningEvidenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>
+        }
+        createMany: {
+          args: Prisma.LearningEvidenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LearningEvidenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>[]
+        }
+        delete: {
+          args: Prisma.LearningEvidenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>
+        }
+        update: {
+          args: Prisma.LearningEvidenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>
+        }
+        deleteMany: {
+          args: Prisma.LearningEvidenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LearningEvidenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LearningEvidenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>[]
+        }
+        upsert: {
+          args: Prisma.LearningEvidenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningEvidencePayload>
+        }
+        aggregate: {
+          args: Prisma.LearningEvidenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLearningEvidence>
+        }
+        groupBy: {
+          args: Prisma.LearningEvidenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LearningEvidenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LearningEvidenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LearningEvidenceCountAggregateOutputType> | number
+        }
+      }
+    }
     StudentProgress: {
       payload: Prisma.$StudentProgressPayload<ExtArgs>
       fields: Prisma.StudentProgressFieldRefs
@@ -1553,10 +1628,25 @@ export const SkillMasteryScalarFieldEnum = {
   skill: 'skill',
   level: 'level',
   updatedAt: 'updatedAt',
+  pMastery: 'pMastery',
+  attempts: 'attempts',
   studentId: 'studentId'
 } as const
 
 export type SkillMasteryScalarFieldEnum = (typeof SkillMasteryScalarFieldEnum)[keyof typeof SkillMasteryScalarFieldEnum]
+
+
+export const LearningEvidenceScalarFieldEnum = {
+  id: 'id',
+  skill: 'skill',
+  correct: 'correct',
+  hintLevel: 'hintLevel',
+  source: 'source',
+  createdAt: 'createdAt',
+  studentId: 'studentId'
+} as const
+
+export type LearningEvidenceScalarFieldEnum = (typeof LearningEvidenceScalarFieldEnum)[keyof typeof LearningEvidenceScalarFieldEnum]
 
 
 export const StudentProgressScalarFieldEnum = {
@@ -1710,13 +1800,6 @@ export type ListEnumMasteryLevelFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1727,6 +1810,13 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 /**
@@ -1891,6 +1981,7 @@ export type GlobalOmitConfig = {
   project?: Prisma.ProjectOmit
   hintEvent?: Prisma.HintEventOmit
   skillMastery?: Prisma.SkillMasteryOmit
+  learningEvidence?: Prisma.LearningEvidenceOmit
   studentProgress?: Prisma.StudentProgressOmit
   consent?: Prisma.ConsentOmit
 }

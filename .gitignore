@@ -25,3 +25,5 @@ web/prisma/*.db
 # external tools
 scratch-editor/
 scratch-gui/
+
+CLAUDE.md

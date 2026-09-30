@@ -20,8 +20,20 @@ export type SkillMasteryModel = runtime.Types.Result.DefaultSelection<Prisma.$Sk
 
 export type AggregateSkillMastery = {
   _count: SkillMasteryCountAggregateOutputType | null
+  _avg: SkillMasteryAvgAggregateOutputType | null
+  _sum: SkillMasterySumAggregateOutputType | null
   _min: SkillMasteryMinAggregateOutputType | null
   _max: SkillMasteryMaxAggregateOutputType | null
+}
+
+export type SkillMasteryAvgAggregateOutputType = {
+  pMastery: number | null
+  attempts: number | null
+}
+
+export type SkillMasterySumAggregateOutputType = {
+  pMastery: number | null
+  attempts: number | null
 }
 
 export type SkillMasteryMinAggregateOutputType = {
@@ -29,6 +41,8 @@ export type SkillMasteryMinAggregateOutputType = {
   skill: string | null
   level: $Enums.MasteryLevel | null
   updatedAt: Date | null
+  pMastery: number | null
+  attempts: number | null
   studentId: string | null
 }
 
@@ -37,6 +51,8 @@ export type SkillMasteryMaxAggregateOutputType = {
   skill: string | null
   level: $Enums.MasteryLevel | null
   updatedAt: Date | null
+  pMastery: number | null
+  attempts: number | null
   studentId: string | null
 }
 
@@ -45,16 +61,30 @@ export type SkillMasteryCountAggregateOutputType = {
   skill: number
   level: number
   updatedAt: number
+  pMastery: number
+  attempts: number
   studentId: number
   _all: number
 }
 
+
+export type SkillMasteryAvgAggregateInputType = {
+  pMastery?: true
+  attempts?: true
+}
+
+export type SkillMasterySumAggregateInputType = {
+  pMastery?: true
+  attempts?: true
+}
 
 export type SkillMasteryMinAggregateInputType = {
   id?: true
   skill?: true
   level?: true
   updatedAt?: true
+  pMastery?: true
+  attempts?: true
   studentId?: true
 }
 
@@ -63,6 +93,8 @@ export type SkillMasteryMaxAggregateInputType = {
   skill?: true
   level?: true
   updatedAt?: true
+  pMastery?: true
+  attempts?: true
   studentId?: true
 }
 
@@ -71,6 +103,8 @@ export type SkillMasteryCountAggregateInputType = {
   skill?: true
   level?: true
   updatedAt?: true
+  pMastery?: true
+  attempts?: true
   studentId?: true
   _all?: true
 }
@@ -113,6 +147,18 @@ export type SkillMasteryAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SkillMasteryAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SkillMasterySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SkillMasteryMinAggregateInputType
@@ -143,6 +189,8 @@ export type SkillMasteryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: SkillMasteryCountAggregateInputType | true
+  _avg?: SkillMasteryAvgAggregateInputType
+  _sum?: SkillMasterySumAggregateInputType
   _min?: SkillMasteryMinAggregateInputType
   _max?: SkillMasteryMaxAggregateInputType
 }
@@ -152,8 +200,12 @@ export type SkillMasteryGroupByOutputType = {
   skill: string
   level: $Enums.MasteryLevel
   updatedAt: Date
+  pMastery: number
+  attempts: number
   studentId: string
   _count: SkillMasteryCountAggregateOutputType | null
+  _avg: SkillMasteryAvgAggregateOutputType | null
+  _sum: SkillMasterySumAggregateOutputType | null
   _min: SkillMasteryMinAggregateOutputType | null
   _max: SkillMasteryMaxAggregateOutputType | null
 }
@@ -181,6 +233,8 @@ export type SkillMasteryWhereInput = {
   skill?: Prisma.StringFilter<"SkillMastery"> | string
   level?: Prisma.EnumMasteryLevelFilter<"SkillMastery"> | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFilter<"SkillMastery"> | Date | string
+  pMastery?: Prisma.FloatFilter<"SkillMastery"> | number
+  attempts?: Prisma.IntFilter<"SkillMastery"> | number
   studentId?: Prisma.StringFilter<"SkillMastery"> | string
   student?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
 }
@@ -190,6 +244,8 @@ export type SkillMasteryOrderByWithRelationInput = {
   skill?: Prisma.SortOrder
   level?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   student?: Prisma.StudentOrderByWithRelationInput
 }
@@ -203,6 +259,8 @@ export type SkillMasteryWhereUniqueInput = Prisma.AtLeast<{
   skill?: Prisma.StringFilter<"SkillMastery"> | string
   level?: Prisma.EnumMasteryLevelFilter<"SkillMastery"> | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFilter<"SkillMastery"> | Date | string
+  pMastery?: Prisma.FloatFilter<"SkillMastery"> | number
+  attempts?: Prisma.IntFilter<"SkillMastery"> | number
   studentId?: Prisma.StringFilter<"SkillMastery"> | string
   student?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
 }, "id" | "studentId_skill">
@@ -212,10 +270,14 @@ export type SkillMasteryOrderByWithAggregationInput = {
   skill?: Prisma.SortOrder
   level?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   _count?: Prisma.SkillMasteryCountOrderByAggregateInput
+  _avg?: Prisma.SkillMasteryAvgOrderByAggregateInput
   _max?: Prisma.SkillMasteryMaxOrderByAggregateInput
   _min?: Prisma.SkillMasteryMinOrderByAggregateInput
+  _sum?: Prisma.SkillMasterySumOrderByAggregateInput
 }
 
 export type SkillMasteryScalarWhereWithAggregatesInput = {
@@ -226,6 +288,8 @@ export type SkillMasteryScalarWhereWithAggregatesInput = {
   skill?: Prisma.StringWithAggregatesFilter<"SkillMastery"> | string
   level?: Prisma.EnumMasteryLevelWithAggregatesFilter<"SkillMastery"> | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SkillMastery"> | Date | string
+  pMastery?: Prisma.FloatWithAggregatesFilter<"SkillMastery"> | number
+  attempts?: Prisma.IntWithAggregatesFilter<"SkillMastery"> | number
   studentId?: Prisma.StringWithAggregatesFilter<"SkillMastery"> | string
 }
 
@@ -234,6 +298,8 @@ export type SkillMasteryCreateInput = {
   skill: string
   level?: $Enums.MasteryLevel
   updatedAt?: Date | string
+  pMastery?: number
+  attempts?: number
   student: Prisma.StudentCreateNestedOneWithoutSkillsInput
 }
 
@@ -242,6 +308,8 @@ export type SkillMasteryUncheckedCreateInput = {
   skill: string
   level?: $Enums.MasteryLevel
   updatedAt?: Date | string
+  pMastery?: number
+  attempts?: number
   studentId: string
 }
 
@@ -250,6 +318,8 @@ export type SkillMasteryUpdateInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
   student?: Prisma.StudentUpdateOneRequiredWithoutSkillsNestedInput
 }
 
@@ -258,6 +328,8 @@ export type SkillMasteryUncheckedUpdateInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -266,6 +338,8 @@ export type SkillMasteryCreateManyInput = {
   skill: string
   level?: $Enums.MasteryLevel
   updatedAt?: Date | string
+  pMastery?: number
+  attempts?: number
   studentId: string
 }
 
@@ -274,6 +348,8 @@ export type SkillMasteryUpdateManyMutationInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SkillMasteryUncheckedUpdateManyInput = {
@@ -281,6 +357,8 @@ export type SkillMasteryUncheckedUpdateManyInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -304,7 +382,14 @@ export type SkillMasteryCountOrderByAggregateInput = {
   skill?: Prisma.SortOrder
   level?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+}
+
+export type SkillMasteryAvgOrderByAggregateInput = {
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
 }
 
 export type SkillMasteryMaxOrderByAggregateInput = {
@@ -312,6 +397,8 @@ export type SkillMasteryMaxOrderByAggregateInput = {
   skill?: Prisma.SortOrder
   level?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
 }
 
@@ -320,7 +407,14 @@ export type SkillMasteryMinOrderByAggregateInput = {
   skill?: Prisma.SortOrder
   level?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+}
+
+export type SkillMasterySumOrderByAggregateInput = {
+  pMastery?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
 }
 
 export type SkillMasteryCreateNestedManyWithoutStudentInput = {
@@ -369,11 +463,21 @@ export type EnumMasteryLevelFieldUpdateOperationsInput = {
   set?: $Enums.MasteryLevel
 }
 
+export type FloatFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type SkillMasteryCreateWithoutStudentInput = {
   id?: string
   skill: string
   level?: $Enums.MasteryLevel
   updatedAt?: Date | string
+  pMastery?: number
+  attempts?: number
 }
 
 export type SkillMasteryUncheckedCreateWithoutStudentInput = {
@@ -381,6 +485,8 @@ export type SkillMasteryUncheckedCreateWithoutStudentInput = {
   skill: string
   level?: $Enums.MasteryLevel
   updatedAt?: Date | string
+  pMastery?: number
+  attempts?: number
 }
 
 export type SkillMasteryCreateOrConnectWithoutStudentInput = {
@@ -417,6 +523,8 @@ export type SkillMasteryScalarWhereInput = {
   skill?: Prisma.StringFilter<"SkillMastery"> | string
   level?: Prisma.EnumMasteryLevelFilter<"SkillMastery"> | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFilter<"SkillMastery"> | Date | string
+  pMastery?: Prisma.FloatFilter<"SkillMastery"> | number
+  attempts?: Prisma.IntFilter<"SkillMastery"> | number
   studentId?: Prisma.StringFilter<"SkillMastery"> | string
 }
 
@@ -425,6 +533,8 @@ export type SkillMasteryCreateManyStudentInput = {
   skill: string
   level?: $Enums.MasteryLevel
   updatedAt?: Date | string
+  pMastery?: number
+  attempts?: number
 }
 
 export type SkillMasteryUpdateWithoutStudentInput = {
@@ -432,6 +542,8 @@ export type SkillMasteryUpdateWithoutStudentInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SkillMasteryUncheckedUpdateWithoutStudentInput = {
@@ -439,6 +551,8 @@ export type SkillMasteryUncheckedUpdateWithoutStudentInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SkillMasteryUncheckedUpdateManyWithoutStudentInput = {
@@ -446,6 +560,8 @@ export type SkillMasteryUncheckedUpdateManyWithoutStudentInput = {
   skill?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.EnumMasteryLevelFieldUpdateOperationsInput | $Enums.MasteryLevel
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pMastery?: Prisma.FloatFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -455,6 +571,8 @@ export type SkillMasterySelect<ExtArgs extends runtime.Types.Extensions.Internal
   skill?: boolean
   level?: boolean
   updatedAt?: boolean
+  pMastery?: boolean
+  attempts?: boolean
   studentId?: boolean
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["skillMastery"]>
@@ -464,6 +582,8 @@ export type SkillMasterySelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   skill?: boolean
   level?: boolean
   updatedAt?: boolean
+  pMastery?: boolean
+  attempts?: boolean
   studentId?: boolean
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["skillMastery"]>
@@ -473,6 +593,8 @@ export type SkillMasterySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   skill?: boolean
   level?: boolean
   updatedAt?: boolean
+  pMastery?: boolean
+  attempts?: boolean
   studentId?: boolean
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["skillMastery"]>
@@ -482,10 +604,12 @@ export type SkillMasterySelectScalar = {
   skill?: boolean
   level?: boolean
   updatedAt?: boolean
+  pMastery?: boolean
+  attempts?: boolean
   studentId?: boolean
 }
 
-export type SkillMasteryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "skill" | "level" | "updatedAt" | "studentId", ExtArgs["result"]["skillMastery"]>
+export type SkillMasteryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "skill" | "level" | "updatedAt" | "pMastery" | "attempts" | "studentId", ExtArgs["result"]["skillMastery"]>
 export type SkillMasteryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
 }
@@ -506,6 +630,8 @@ export type $SkillMasteryPayload<ExtArgs extends runtime.Types.Extensions.Intern
     skill: string
     level: $Enums.MasteryLevel
     updatedAt: Date
+    pMastery: number
+    attempts: number
     studentId: string
   }, ExtArgs["result"]["skillMastery"]>
   composites: {}
@@ -935,6 +1061,8 @@ export interface SkillMasteryFieldRefs {
   readonly skill: Prisma.FieldRef<"SkillMastery", 'String'>
   readonly level: Prisma.FieldRef<"SkillMastery", 'MasteryLevel'>
   readonly updatedAt: Prisma.FieldRef<"SkillMastery", 'DateTime'>
+  readonly pMastery: Prisma.FieldRef<"SkillMastery", 'Float'>
+  readonly attempts: Prisma.FieldRef<"SkillMastery", 'Int'>
   readonly studentId: Prisma.FieldRef<"SkillMastery", 'String'>
 }
     

@@ -13,8 +13,13 @@ from collections import defaultdict, deque
 from pydantic import BaseModel
 from monitor import looks_stuck
 from governor import may_speak, record_nudge
-from checker import check
+from checker import check, check_signals
 from hints import build_hint, build_hint_for_proactive, build_followup
+# Aliased: hints.level_for already exists and means something else (the rung
+# of the hint ladder for a number of attempts). Importing this one under its
+# own name shadowed it and broke every hint request.
+from learner_model import level_for as mastery_level_for, update as update_mastery
+from planner import plan, content_for_skill as plan_content
 
 app = FastAPI(title="ThinkKraft AI service")
 
@@ -65,6 +70,39 @@ async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...))
     return {"signals": signals, "result": result, "hint": hint}
 
 
+@app.get("/content/{skill_id}")
+async def content(skill_id: str):
+    """
+    One skill's teaching content, by id.
+
+    Separate from /learner/next on purpose. The planner answers "what should
+    this child do next", and its answer may be a different skill from the one
+    asked about, because it redirects to the root cause. Anything that needs
+    the content for a named skill has to ask for that skill, not for a plan.
+    """
+    step = plan_content(skill_id)
+    if step is None:
+        return {"content": None}
+    return {"content": step}
+
+
+@app.post("/practice/check")
+async def practice_check(required_signals: str = "", file: UploadFile = File(...)):
+    """
+    A practice attempt, checked against the skill's own required signals.
+
+    Deterministic, like every other verdict here. The signal list comes from
+    skills.yaml by way of the planner, not from the child and not from a model.
+    """
+    data = await file.read()
+    try:
+        signals = parse_sb3(data)
+    except Exception as e:
+        return {"error": str(e)}
+    required = [s for s in required_signals.split(",") if s]
+    return {"signals": signals, "result": check_signals(signals, required)}
+
+
 @app.post("/activity")
 async def activity(event: ActivityEvent):
     ACTIVITY[event.studentId].append({"kind": event.kind, "at": time.time()})
@@ -84,6 +122,68 @@ async def activity(event: ActivityEvent):
     PROACTIVE[event.studentId].append(hint)
 
     return {"stuck": True, "spoke": True, "reason": verdict["reason"], "hint": hint}
+
+
+class LearnerEvidence(BaseModel):
+    skill: str | None = None
+    correct: bool = False
+    hint_level: int = 0
+
+
+class LearnerUpdateRequest(BaseModel):
+    prior: dict[str, float] = {}
+    evidence: list[LearnerEvidence] = []
+
+
+@app.post("/learner/update")
+async def learner_update(req: LearnerUpdateRequest):
+    """
+    Apply evidence to a child's mastery estimates.
+
+    Stateless, like everything else here: the caller sends what it has stored
+    and gets back what to store next. The web core owns the database.
+    """
+    posterior = update_mastery(
+        req.prior,
+        [e.model_dump() for e in req.evidence],
+    )
+    return {
+        "posterior": posterior,
+        # The words a child or parent sees. Sent alongside so no caller has to
+        # re-implement the thresholds and risk disagreeing with this one.
+        "levels": {k: mastery_level_for(v) for k, v in posterior.items()},
+    }
+
+
+class NextStepRequest(BaseModel):
+    mastery: dict[str, float] = {}
+    target_skills: list[str] = []
+    # Off by default. Rewording costs a model call, and a teacher reading the
+    # queue wants the words they approved, not a variation on them.
+    reword: bool = False
+
+
+@app.post("/learner/next")
+async def learner_next(req: NextStepRequest):
+    """
+    What to teach this child next.
+
+    The decision is made by planner.py in code. The model is not asked what to
+    teach, only, optionally, to say the chosen explanation more warmly. If it
+    fails or is not running, rephrase returns the template unchanged.
+    """
+    step = plan(req.mastery, req.target_skills)
+
+    content = step.get("content")
+    if req.reword and content:
+        explanation = content["micro_lesson"]["explanation"]
+        # Level 1: a micro-lesson is an explanation, not a worked answer, so
+        # the guardrail's gentler setting applies. The worked example is left
+        # exactly as written, because it names the blocks to use and rewording
+        # it risks naming different ones.
+        content["micro_lesson"]["explanation"] = rephrase(explanation, 1)
+
+    return step
 
 
 class FollowupRequest(BaseModel):

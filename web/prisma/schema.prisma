@@ -53,6 +53,7 @@ model Student {
   projects        Project[]
   hintEvents      HintEvent[]
   skills          SkillMastery[]
+  evidence        LearningEvidence[]
   consents        Consent[]
   studentProgress StudentProgress[]
   user            User?
@@ -178,10 +179,38 @@ model SkillMastery {
   level     MasteryLevel @default(NOT_STARTED)
   updatedAt DateTime     @updatedAt
 
+  // The learner model's estimate that this child has learned this skill.
+  // level stays as it was: it is the coarse band the rest of the app already
+  // reads, and this is the number it is derived from.
+  pMastery Float @default(0.2)
+  attempts Int   @default(0)
+
   studentId String
   student   Student @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, skill])
+}
+
+// One thing a child did that says something about a skill. Kept rather than
+// only folded into pMastery, because an estimate with no history behind it
+// cannot be explained to a teacher, corrected after a bug, or recomputed if
+// the model's constants change.
+model LearningEvidence {
+  id        String   @id @default(cuid())
+  skill     String
+  correct   Boolean
+  // Which rung of the hint ladder was showing when they managed it. 0 means
+  // unaided. Success with more help counts for less.
+  hintLevel Int      @default(0)
+  // Where the evidence came from: "check" for a check of their lesson work,
+  // "practice" for a planner practice task.
+  source    String
+  createdAt DateTime @default(now())
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, skill])
 }
 
 model StudentProgress {
