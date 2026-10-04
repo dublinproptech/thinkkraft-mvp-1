@@ -27,3 +27,6 @@ scratch-editor/
 scratch-gui/
 
 CLAUDE.md
+
+# generated reports, rebuilt on demand rather than kept in history
+/*.pdf

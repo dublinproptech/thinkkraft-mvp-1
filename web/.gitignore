@@ -40,5 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-web/generated
-web/storage/
+# These were written as web/generated and web/storage/ while this file already
+# sits inside web/, so both resolved to web/web/... and matched nothing. The
+# generated Prisma client and children's saved projects were being tracked.
+generated/
+storage/
