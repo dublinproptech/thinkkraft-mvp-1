@@ -4,9 +4,17 @@ and if not, names the exact concept the child is missing (the "diagnosis").
 This is deterministic on purpose: correctness is never left to the language model.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 # Each lesson requires a set of concepts. The keys map to signals from the parser.
 LESSON_REQUIREMENTS = {
-    "loops-1": ["has_green_flag", "has_move", "has_loop"],
+    # move_inside_loop comes last on purpose. A child with a loop and a
+    # movement sitting beside each other has done most of the work, and the
+    # thing left to say is "put it inside", which is exactly what the
+    # missing_loop hint says.
+    "loops-1": ["has_green_flag", "has_move", "has_loop", "move_inside_loop"],
     "conditionals-1": ["has_green_flag", "has_conditional"],
     "variables-1": ["has_variable"],
 }
@@ -17,6 +25,8 @@ DIAGNOSIS_FOR = {
     "has_green_flag": "missing_green_flag",
     "has_move": "missing_move",
     "has_loop": "missing_loop",
+    # Same gap from the child's point of view: the repeating is not happening.
+    "move_inside_loop": "missing_loop",
     "has_conditional": "missing_conditional",
     "has_variable": "missing_variable",
 }

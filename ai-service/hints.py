@@ -5,6 +5,10 @@ The level rises with how many times the child has already tried,
 so the tutor guides before it ever reveals the answer.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 LADDER = {
     "missing_green_flag": {
         1: "How will your project know when to start? Look in the yellow Events blocks.",

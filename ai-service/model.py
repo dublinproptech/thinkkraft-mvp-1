@@ -5,10 +5,28 @@ and never invents the hint from scratch: if the model fails or drifts, we
 return the original template unchanged.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 import httpx
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "llama3.2"
+
+# How long to wait for the model before giving up and using the written hint.
+#
+# This is not a reliability setting, it is a teaching one. The hint a child
+# gets is already correct and already safe before the model sees it; all the
+# model adds is warmer wording. Waiting a long time for warmth is a bad trade
+# against a child sitting in front of a frozen button.
+#
+# Measured on one machine: a single rewording takes about two seconds, but
+# Ollama serves requests roughly one at a time, so a class of thirty all
+# pressing the button together queue behind each other. At twenty seconds most
+# of that class waited the full twenty and got the written hint anyway. At five
+# they get the same hint four times sooner.
+REPHRASE_TIMEOUT_SECONDS = 5
 
 
 def rephrase(template_hint: str, level: int, child_answer: str | None = None) -> str:
@@ -40,7 +58,7 @@ def rephrase(template_hint: str, level: int, child_answer: str | None = None) ->
         res = httpx.post(
             OLLAMA_URL,
             json={"model": MODEL, "prompt": prompt, "stream": False},
-            timeout=20,
+            timeout=REPHRASE_TIMEOUT_SECONDS,
         )
         res.raise_for_status()
         text = res.json().get("response", "").strip()

@@ -3,6 +3,10 @@ The learner model decides what a child is taught, so its behaviour is pinned
 down here rather than left to be discovered later.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 import pytest
 
 from learner_model import (
