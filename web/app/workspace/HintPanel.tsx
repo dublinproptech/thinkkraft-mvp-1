@@ -16,8 +16,8 @@ type Props = {
   studentId: string;
   lessonId: string;
   captureProject: () => Promise<string | null>;
-  /** Announce a tip that a teacher has just let through. */
-  onApproved: (text: string) => void;
+  /** Announce a tip that has just reached the child. */
+  onApproved: (text: string, autoApproved: boolean) => void;
 };
 
 // A hint that asks a question is one the child can answer. Milo's level-1
@@ -67,7 +67,10 @@ export default function HintPanel({
     );
 
     source.onmessage = (event) => {
-      const hint = JSON.parse(event.data) as Hint & { backlog?: boolean };
+      const hint = JSON.parse(event.data) as Hint & {
+        backlog?: boolean;
+        autoApproved?: boolean;
+      };
       if (seen.current.has(hint.id)) return;
       seen.current.add(hint.id);
 
@@ -81,7 +84,11 @@ export default function HintPanel({
 
       // Only a tip that has just come through the gate is worth interrupting
       // for. Catching up on old ones when the page opens is not news.
-      if (!hint.backlog) announce.current(hint.text);
+      // Only a tip that has just come through is worth interrupting for, and
+      // what it says depends on who let it through. Claiming a teacher
+      // approved something no teacher ever saw is a small lie about the one
+      // promise this product makes.
+      if (!hint.backlog) announce.current(hint.text, hint.autoApproved === true);
     };
 
     source.onerror = () => {

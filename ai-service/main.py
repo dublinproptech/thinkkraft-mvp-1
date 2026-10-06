@@ -1,12 +1,26 @@
 """
 Run:  uvicorn main:app --reload --port 8000
+
+A note on which routes are async and which are not.
+
+Anything that calls the language model is a plain def, not an async def.
+rephrase() talks to Ollama with a blocking client and a twenty second
+timeout. Inside an async def that blocks the whole event loop, so one child
+waiting on an inference stops every other child being served at all. A plain
+def is run by FastAPI in a worker thread instead, which is what we want: slow
+for that one request, invisible to everyone else.
+
+The same goes for the routes that read an uploaded project, because reading
+the file is blocking too.
 """
 
+from __future__ import annotations
+
 import httpx
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from sb3_parser import parse_sb3
 from checker import check
-from hints import build_hint, LADDER, level_for, guardrail
+from hints import build_hint, LADDER, level_for, guardrail, GIVEAWAY
 from model import rephrase
 import time
 from collections import defaultdict, deque
@@ -22,6 +36,51 @@ from learner_model import level_for as mastery_level_for, update as update_maste
 from planner import plan, content_for_skill as plan_content
 
 app = FastAPI(title="ThinkKraft AI service")
+
+# The biggest .sb3 we will read into memory. A Scratch project with a few
+# sprites and sounds runs to a couple of megabytes; this leaves room while
+# stopping an upload from being used to exhaust the service's memory. The web
+# core caps uploads at the same size, but this service is reachable on its own
+# and has to defend itself rather than trust its caller.
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+
+
+def safe_explanation(worded: str, original: str, worked_example: str) -> str:
+    """
+    The model's rewording of a micro-lesson, or the written one if it drifted.
+
+    guardrail() in hints.py cannot be used here: it falls back to a rung of the
+    hint ladder, and a micro-lesson is not a rung. The fallback here is the
+    explanation a person wrote.
+
+    Two things disqualify a rewording. An empty answer, which is what a failed
+    model call looks like. And an answer that has folded the worked example in,
+    because the explanation is meant to say what the idea is and let the child
+    think before the worked example tells them which blocks to drag.
+    """
+    if not worded or not worded.strip():
+        return original
+
+    lowered = worded.lower()
+    if worked_example and worked_example.strip().lower() in lowered:
+        return original
+    if any(phrase in lowered for phrase in GIVEAWAY):
+        return original
+    return worded
+
+
+def read_upload(file: UploadFile) -> bytes:
+    """
+    The bytes of an uploaded project, or a refusal if it is too big.
+
+    Reads one byte past the limit so an oversized file is detected without
+    pulling the whole thing in first. Synchronous on purpose: the callers are
+    plain def routes running in a worker thread.
+    """
+    data = file.file.read(MAX_UPLOAD_BYTES + 1)
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="That project file is too big.")
+    return data
 
 OLLAMA_URL = "http://localhost:11434"
 
@@ -57,8 +116,8 @@ async def ollama_check():
 
 
 @app.post("/parse")
-async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...)):
-    data = await file.read()
+def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...)):
+    data = read_upload(file)
     try:
         signals = parse_sb3(data)
     except Exception as e:
@@ -71,7 +130,7 @@ async def parse(lesson_id: str, attempts: int = 1, file: UploadFile = File(...))
 
 
 @app.get("/content/{skill_id}")
-async def content(skill_id: str):
+def content(skill_id: str):
     """
     One skill's teaching content, by id.
 
@@ -87,14 +146,14 @@ async def content(skill_id: str):
 
 
 @app.post("/practice/check")
-async def practice_check(required_signals: str = "", file: UploadFile = File(...)):
+def practice_check(required_signals: str = "", file: UploadFile = File(...)):
     """
     A practice attempt, checked against the skill's own required signals.
 
     Deterministic, like every other verdict here. The signal list comes from
     skills.yaml by way of the planner, not from the child and not from a model.
     """
-    data = await file.read()
+    data = read_upload(file)
     try:
         signals = parse_sb3(data)
     except Exception as e:
@@ -164,7 +223,7 @@ class NextStepRequest(BaseModel):
 
 
 @app.post("/learner/next")
-async def learner_next(req: NextStepRequest):
+def learner_next(req: NextStepRequest):
     """
     What to teach this child next.
 
@@ -181,7 +240,12 @@ async def learner_next(req: NextStepRequest):
         # the guardrail's gentler setting applies. The worked example is left
         # exactly as written, because it names the blocks to use and rewording
         # it risks naming different ones.
-        content["micro_lesson"]["explanation"] = rephrase(explanation, 1)
+        # Checked before it is used, like every other piece of model output.
+        content["micro_lesson"]["explanation"] = safe_explanation(
+            rephrase(explanation, 1),
+            explanation,
+            content["micro_lesson"].get("worked_example", ""),
+        )
 
     return step
 
@@ -193,7 +257,7 @@ class FollowupRequest(BaseModel):
 
 
 @app.post("/followup")
-async def followup(req: FollowupRequest):
+def followup(req: FollowupRequest):
     """
     A child answered a hint that asked them a question. What they get back is
     the next rung of the same ladder, chosen here by deterministic code; their

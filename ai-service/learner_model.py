@@ -19,6 +19,10 @@ The model has two steps per piece of evidence:
      attempt itself. P_LEARN adds that.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 # Before a child has done anything, assume they probably do not know it yet.

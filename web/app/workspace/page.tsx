@@ -262,8 +262,13 @@ function WorkspaceContent() {
           studentId={studentId}
           lessonId={lessonId}
           captureProject={captureProject}
-          onApproved={(text) =>
-            showToast(`Your teacher approved a tip: ${text}`, "success")
+          onApproved={(text, autoApproved) =>
+            showToast(
+              autoApproved
+                ? `Milo sent you a tip: ${text}`
+                : `Your teacher approved a tip: ${text}`,
+              "success",
+            )
           }
         />
       )}

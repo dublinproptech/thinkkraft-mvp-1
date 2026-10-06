@@ -18,7 +18,7 @@ model User {
   createdAt DateTime @default(now())
 
   studentId String?  @unique
-  student   Student? @relation(fields: [studentId], references: [id])
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   teacherId String?  @unique
   teacher   Teacher? @relation(fields: [teacherId], references: [id])
@@ -40,6 +40,11 @@ model Parent {
   user     User?
 }
 
+// Everything below that points at a Student does so with onDelete: Cascade.
+// Erasing a child has to actually erase them, and without it the database
+// refuses the delete because the child's own records refer to them. The .sb3
+// files on disk are not covered by a foreign key, so lib/db/erasure.ts removes
+// those in the same operation.
 model Student {
   id          String   @id @default(cuid())
   displayName String
@@ -126,7 +131,7 @@ model Enrolment {
   createdAt DateTime        @default(now())
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   cohortId String
   cohort   Cohort @relation(fields: [cohortId], references: [id])
@@ -140,7 +145,7 @@ model Project {
   updatedAt DateTime @updatedAt
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   lessonId String
   lesson   Lesson @relation(fields: [lessonId], references: [id])
@@ -155,7 +160,7 @@ model HintEvent {
   createdAt DateTime   @default(now())
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   lessonId String
   lesson   Lesson @relation(fields: [lessonId], references: [id])
@@ -196,7 +201,7 @@ model SkillMastery {
   attempts Int   @default(0)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, skill])
 }
@@ -218,7 +223,7 @@ model LearningEvidence {
   createdAt DateTime @default(now())
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, skill])
 }
@@ -230,7 +235,7 @@ model StudentProgress {
   updatedAt  DateTime @updatedAt
 
   studentId  String
-  student    Student  @relation(fields: [studentId], references: [id])
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   lessonId   String
   lesson     Lesson   @relation(fields: [lessonId], references: [id])
@@ -246,7 +251,7 @@ model Consent {
   parent   Parent @relation(fields: [parentId], references: [id])
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 // ----------- Enums -------------

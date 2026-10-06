@@ -33,6 +33,15 @@ export async function createHint(data: {
           studentId: data.studentId,
           lessonId: data.lessonId,
           status: { in: ["PROPOSED", "APPROVED"] },
+          // A tip the child has closed is not a reason to stay silent.
+          //
+          // dismissedAt means "I have read that and put it away". Without this
+          // line, closing a tip made it permanently impossible to be told the
+          // same thing again: the row still counted as a duplicate, so nothing
+          // new was filed, the teacher's queue stayed empty and the child got
+          // no help on a gap they still had. The stream already hides dismissed
+          // hints, so the two filters now agree about what counts as live.
+          dismissedAt: null,
           OR: [
             { diagnosis: data.diagnosis, level: data.level },
             { text: data.text },

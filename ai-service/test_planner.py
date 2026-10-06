@@ -5,6 +5,10 @@ on a threshold, so a change to the thresholds does not quietly rewrite what
 these tests mean.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 import planner
 from learner_model import MASTERED, P_INIT
 from planner import ADVANCE, PRACTICE, REVIEW, TEACH, plan, weakest_unmastered_prerequisite

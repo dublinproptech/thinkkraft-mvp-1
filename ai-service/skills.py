@@ -10,6 +10,10 @@ loader, kept separate so the planner and the learner model can both read it
 without either owning it.
 """
 
+# Deferred annotation evaluation, so the modern union and builtin generic
+# syntax below also runs on Python 3.8 and 3.9.
+from __future__ import annotations
+
 import os
 from functools import lru_cache
 

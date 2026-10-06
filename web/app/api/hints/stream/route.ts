@@ -52,7 +52,7 @@ export async function GET(req: Request) {
       const initial = await approvedHintsForStudent(studentId, lessonId);
       initial.forEach((h) => sent.add(h.id));
       for (const h of initial.slice(0, BACKLOG).reverse()) {
-        push({ id: h.id, text: h.text, level: h.level, backlog: true });
+        push({ id: h.id, text: h.text, level: h.level, backlog: true, autoApproved: h.autoApprovedAt !== null });
       }
 
       const tick = async () => {
@@ -68,7 +68,7 @@ export async function GET(req: Request) {
         for (const h of hints) {
           if (!sent.has(h.id)) {
             sent.add(h.id);
-            push({ id: h.id, text: h.text, level: h.level, backlog: false });
+            push({ id: h.id, text: h.text, level: h.level, backlog: false, autoApproved: h.autoApprovedAt !== null });
           }
         }
       };

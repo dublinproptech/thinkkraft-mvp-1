@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 
 IDLE_SECONDS = 30  # no activity for this long counts as idle

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { approveHint } from "@/lib/db/hints";
 import { requireTeacher } from "@/lib/session";
+import { markTeacherSeen } from "@/lib/db/presence";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,12 @@ const Input = z.object({
 export async function POST(req: Request) {
   const who = await requireTeacher();
   if (!who.ok) return who.response;
+
+  // A teacher deciding on a hint is unambiguously on duty. The queue's poll
+  // is the usual heartbeat, but relying on it alone means a teacher who acts
+  // between polls, or whose tab the browser has throttled, can read as absent
+  // and let the next hint through unsupervised.
+  await markTeacherSeen(who.teacherId).catch(() => {});
 
   const body = await req.json().catch(() => null);
   const parsed = Input.safeParse(body);
