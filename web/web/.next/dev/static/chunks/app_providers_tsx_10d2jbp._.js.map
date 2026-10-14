@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/spkus/thinkkraft-mvp-1/web/app/providers.tsx"],"sourcesContent":["\"use client\";\r\n\r\nimport { SessionProvider } from \"next-auth/react\";\r\nimport type { Session } from \"next-auth\";\r\n\r\n// The session is read on the server and handed down, so useSession() already\r\n// has an answer on the very first render. Without it the app bar renders\r\n// signed-out for a moment and the name and role pop in after hydration.\r\nexport function Providers({\r\n  children,\r\n  session,\r\n}: {\r\n  children: React.ReactNode;\r\n  session: Session | null;\r\n}) {\r\n  return <SessionProvider session={session}>{children}</SessionProvider>;\r\n}"],"names":["Providers","children","session"],"mappings":";;;;;AAEA;AAFA;;;AAQO,SAASA,UAAU,EACxBC,QAAQ,EACRC,OAAO,EAIR;IACC,qBAAO,6LAAC,oKAAe;QAACA,SAASA;kBAAUD;;;;;;AAC7C;KARgBD"}}]
+}
