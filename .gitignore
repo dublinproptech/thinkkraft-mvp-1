@@ -30,3 +30,8 @@ CLAUDE.md
 
 # generated reports, rebuilt on demand rather than kept in history
 /*.pdf
+
+# test output, regenerated on every run
+web/test-results/
+web/playwright-report/
+web/playwright/.auth/
