@@ -5,27 +5,17 @@ and never invents the hint from scratch: if the model fails or drifts, we
 return the original template unchanged.
 """
 
-# Deferred annotation evaluation, so the modern union and builtin generic
-# syntax below also runs on Python 3.8 and 3.9.
 from __future__ import annotations
 
+import os
 import httpx
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "llama3.2"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
-# How long to wait for the model before giving up and using the written hint.
-#
-# This is not a reliability setting, it is a teaching one. The hint a child
-# gets is already correct and already safe before the model sees it; all the
-# model adds is warmer wording. Waiting a long time for warmth is a bad trade
-# against a child sitting in front of a frozen button.
-#
-# Measured on one machine: a single rewording takes about two seconds, but
-# Ollama serves requests roughly one at a time, so a class of thirty all
-# pressing the button together queue behind each other. At twenty seconds most
-# of that class waited the full twenty and got the written hint anyway. At five
-# they get the same hint four times sooner.
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate")
+MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2")
+
 REPHRASE_TIMEOUT_SECONDS = 5
 
 
@@ -54,6 +44,33 @@ def rephrase(template_hint: str, level: int, child_answer: str | None = None) ->
         f"{'Do NOT reveal the exact answer; keep it a gentle nudge. ' if level == 1 else ''}"
         f"Hint to reword: {template_hint}"
     )
+
+    # 1. Primary: Try Gemini Free Tier if key is provided in environment
+    if GEMINI_API_KEY:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.4,
+                    "maxOutputTokens": 120
+                }
+            }
+            res = httpx.post(
+                url,
+                params={"key": GEMINI_API_KEY},
+                json=payload,
+                timeout=REPHRASE_TIMEOUT_SECONDS,
+            )
+            res.raise_for_status()
+            data = res.json()
+            text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            return text or template_hint
+        except Exception:
+            # If Gemini fails, rate-limits (429), or times out, fall through to Ollama
+            pass
+
+    # 2. Secondary fallback: Local Ollama
     try:
         res = httpx.post(
             OLLAMA_URL,
@@ -64,5 +81,5 @@ def rephrase(template_hint: str, level: int, child_answer: str | None = None) ->
         text = res.json().get("response", "").strip()
         return text or template_hint
     except Exception:
-        # Model down, slow, or errored: the template is already a good hint.
+        # 3. Final fallback: Model down, slow, or errored -> use the template
         return template_hint

@@ -1,48 +1,31 @@
-# ThinkKraft prototype
+# ThinkKraft MVP
 
-Two runnable pieces plus a database:
+An AI-assisted learning platform built with Next.js, a Python microservice powered by Google Gemini, Neon Serverless PostgreSQL, and containerized with Docker.
 
-- `web/` : the Next.js app (frontend and core)
-- `ai-service/` : the Python AI service
-- Postgres runs in Docker; Ollama runs natively on your Mac.
+---
 
-## Prerequisites (Mac M1)
+## Architecture Overview
 
-- Node.js 20+ (`brew install node` or use nvm)
-- Python 3.11+ (`brew install python@3.11`)
-- Docker Desktop
-- Ollama (`brew install ollama`), then pull a model: `ollama pull llama3.2`
+* **Frontend & Web Core:** Next.js (App Router, TypeScript, Tailwind CSS)
+* **AI Service:** Python (FastAPI / Gemini 2.5 Flash-Lite integration)
+* **Database:** [Neon](https://neon.tech) Serverless PostgreSQL managed via Prisma ORM
+* **Containerization:** Multi-container setup managed via `docker-compose.yml`
+* **CI/CD & Deployment:** GitHub Actions pipeline configured for containerized deployment
 
-## One-time setup
+---
 
-1. Start the database:
-   ```
-   docker compose up -d
-   ```
-2. Web app:
-   ```
-   cd web
-   npm install
-   cp .env.example .env.local
-   npx prisma generate
-   ```
-3. AI service:
-   ```
-   cd ai-service
-   python3 -m venv .venv && source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
+## Environment Configuration
 
-## Run it (three terminals)
+Create a `.env` file in the root directory (and inside your individual service folders if separated) containing the following keys:
 
-- Ollama: `ollama serve` (or just run `ollama run llama3.2` once)
-- AI service: `cd ai-service && source .venv/bin/activate && uvicorn main:app --reload --port 8000`
-- Web app: `cd web && npm run dev`
+```env
+# Database (Neon Serverless PostgreSQL)
+DATABASE_URL="postgresql://<user>:<password>@<neon-host>/<dbname>?sslmode=require"
 
-Open http://localhost:3000 . All three status rows should be green.
+# AI Service & LLM Configuration
+GEMINI_API_KEY="your-google-gemini-api-key"
+AI_SERVICE_URL="http://localhost:8000"
 
-## Verify the seams directly
-
-- Web to DB: http://localhost:3000/api/health
-- Web to AI: http://localhost:3000/api/ai-check
-- AI to Ollama: http://localhost:8000/ollama-check
+# Application Settings
+NEXTAUTH_SECRET="your-nextauth-secret"
+NEXTAUTH_URL="http://localhost:3000"
