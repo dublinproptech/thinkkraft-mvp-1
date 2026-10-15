@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/spkus/thinkkraft-mvp-1/web/app/components/SignOutButton.tsx"],"sourcesContent":["\"use client\";\r\n\r\nimport { signOut } from \"next-auth/react\";\r\n\r\n// Signing out clears the session cookie and lands back on the public homepage.\r\nexport default function SignOutButton() {\r\n  return (\r\n    <button\r\n      type=\"button\"\r\n      className=\"btn-danger btn-sm\"\r\n      onClick={() => signOut({ callbackUrl: \"/\" })}\r\n    >\r\n      Sign out\r\n    </button>\r\n  );\r\n}\r\n"],"names":["SignOutButton","type","className","onClick","callbackUrl"],"mappings":";;;;;AAEA;AAFA;;;AAKe,SAASA;IACtB,qBACE,6LAAC;QACCC,MAAK;QACLC,WAAU;QACVC,SAAS,IAAM,IAAA,4JAAO,EAAC;gBAAEC,aAAa;YAAI;kBAC3C;;;;;;AAIL;KAVwBJ"}}]
+}
