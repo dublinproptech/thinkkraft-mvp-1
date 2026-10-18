@@ -21,6 +21,7 @@ const head = Baloo_2({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://thinkkraft-web.onrender.com"), // <-- Added this line for WhatsApp previews
   title: "ThinkKraft",
   description: "Creative coding for children, human-led and AI-supported.",
 };
