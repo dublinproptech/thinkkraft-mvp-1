@@ -15,20 +15,26 @@ export async function registerParent(data: {
   passwordHash: string;
 }) {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const parent = await tx.parent.create({
-        data: { name: data.name, email: data.email },
-      });
-      const user = await tx.user.create({
-        data: {
-          email: data.email,
-          password: data.passwordHash,
-          role: "PARENT",
-          parentId: parent.id,
-        },
-      });
-      return { parentId: parent.id, userId: user.id };
-    });
+    return await prisma.$transaction(
+      async (tx) => {
+        const parent = await tx.parent.create({
+          data: { name: data.name, email: data.email },
+        });
+        const user = await tx.user.create({
+          data: {
+            email: data.email,
+            password: data.passwordHash,
+            role: "PARENT",
+            parentId: parent.id,
+          },
+        });
+        return { parentId: parent.id, userId: user.id };
+      },
+      {
+        maxWait: 10000,
+        timeout: 20000,
+      }
+    );
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return null;
@@ -49,27 +55,33 @@ export async function registerChild(data: {
   pinHash: string;
 }) {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const student = await tx.student.create({
-        data: {
-          displayName: data.displayName,
-          ageBand: data.ageBand,
-          parentId: data.parentId,
-        },
-      });
-      await tx.user.create({
-        data: {
-          username: data.username,
-          password: data.pinHash,
-          role: "STUDENT",
-          studentId: student.id,
-        },
-      });
-      await tx.consent.create({
-        data: { parentId: data.parentId, studentId: student.id },
-      });
-      return { studentId: student.id, username: data.username };
-    });
+    return await prisma.$transaction(
+      async (tx) => {
+        const student = await tx.student.create({
+          data: {
+            displayName: data.displayName,
+            ageBand: data.ageBand,
+            parentId: data.parentId,
+          },
+        });
+        await tx.user.create({
+          data: {
+            username: data.username,
+            password: data.pinHash,
+            role: "STUDENT",
+            studentId: student.id,
+          },
+        });
+        await tx.consent.create({
+          data: { parentId: data.parentId, studentId: student.id },
+        });
+        return { studentId: student.id, username: data.username };
+      },
+      {
+        maxWait: 10000,
+        timeout: 20000,
+      }
+    );
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return null;
