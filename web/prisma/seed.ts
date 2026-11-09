@@ -91,7 +91,7 @@ async function main() {
   // 4. A cohort: a specific running of the course, led by the teacher
   await prisma.cohort.upsert({
     where: { id: "cohort-autumn" },
-    update: {},
+    update: { courseId: beginnerCourse.id },
     create: {
       id: "cohort-autumn",
       schedule: "Saturdays 10:00",
