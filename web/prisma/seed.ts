@@ -20,39 +20,68 @@ async function main() {
     create: { name: "Ms Riordain", email: "teacher@thinkkraft.ai" },
   });
 
-  // 2. The first course
-  const course = await prisma.course.upsert({
-    where: { id: "scratch-foundations" },
+  // 2. Beginner Course
+  const beginnerCourse = await prisma.course.upsert({
+    where: { id: "scratch-beginner" },
     update: {},
     create: {
-      id: "scratch-foundations",
-      title: "Build your first game in Scratch",
+      id: "scratch-beginner",
+      title: "Scratch Coding Program – Beginner Level",
+      ageBand: "8-13",
+    },
+  });
+
+  const beginnerLessons = [
+    { id: "beg-w1", orderNo: 1, goal: "Week 1 — Introduction to Scratch & Basic Motion" },
+    { id: "beg-w2", orderNo: 2, goal: "Week 2 — Events, Sounds & Storytelling" },
+    { id: "beg-w3", orderNo: 3, goal: "Week 3 — Loops & Repetition" },
+    { id: "beg-w4", orderNo: 4, goal: "Week 4 — Variables & Scoring Systems" },
+    { id: "beg-w5", orderNo: 5, goal: "Week 5 — Conditions & Decision Making" },
+    { id: "beg-w6", orderNo: 6, goal: "Week 6 — Game Design Fundamentals" },
+    { id: "beg-w7", orderNo: 7, goal: "Week 7 — Final Project Development" },
+    { id: "beg-w8", orderNo: 8, goal: "Week 8 — Showcase & Presentation" },
+  ];
+
+  for (const l of beginnerLessons) {
+    await prisma.lesson.upsert({
+      where: { id: l.id },
+      update: { goal: l.goal, orderNo: l.orderNo, courseId: beginnerCourse.id },
+      create: {
+        id: l.id,
+        courseId: beginnerCourse.id,
+        orderNo: l.orderNo,
+        goal: l.goal,
+      },
+    });
+  }
+
+  // 3. Intermediate Course
+  const intermediateCourse = await prisma.course.upsert({
+    where: { id: "scratch-intermediate" },
+    update: {},
+    create: {
+      id: "scratch-intermediate",
+      title: "Scratch Coding Program - Intermediate Level",
       ageBand: "9-13",
     },
   });
 
-  // 3. Its lessons, in order
-  const lessons = [
-    {
-      id: "loops-1",
-      orderNo: 1,
-      goal: "Make the sprite keep moving using a loop",
-    },
-    {
-      id: "conditionals-1",
-      orderNo: 2,
-      goal: "Make the sprite react with an if / else decision",
-    },
-    { id: "variables-1", orderNo: 3, goal: "Track a score using a variable" },
+  const intermediateLessons = [
+    { id: "int-w1", orderNo: 1, goal: "Intermediate Week 1 - Custom Blocks (My Blocks)" },
+    { id: "int-w2", orderNo: 2, goal: "Intermediate Week 2 - Lists: Storing Many Pieces of Information" },
+    { id: "int-w3", orderNo: 3, goal: "Intermediate Week 3 - Operators, Randomness and Smarter Logic" },
+    { id: "int-w4", orderNo: 4, goal: "Intermediate Week 4 - Advanced Clones and Simple Physics" },
+    { id: "int-w5", orderNo: 5, goal: "Intermediate Week 5 - Game States: Menus, Levels and Game Over Screens" },
+    { id: "int-w6", orderNo: 6, goal: "Intermediate Week 6 - Final Intermediate Project and Showcase" },
   ];
 
-  for (const l of lessons) {
+  for (const l of intermediateLessons) {
     await prisma.lesson.upsert({
       where: { id: l.id },
-      update: { goal: l.goal, orderNo: l.orderNo, courseId: course.id },
+      update: { goal: l.goal, orderNo: l.orderNo, courseId: intermediateCourse.id },
       create: {
         id: l.id,
-        courseId: course.id,
+        courseId: intermediateCourse.id,
         orderNo: l.orderNo,
         goal: l.goal,
       },
@@ -66,7 +95,7 @@ async function main() {
     create: {
       id: "cohort-autumn",
       schedule: "Saturdays 10:00",
-      courseId: course.id,
+      courseId: beginnerCourse.id,
       teacherId: teacher.id,
     },
   });
@@ -143,7 +172,7 @@ async function main() {
     create: { studentId: child.id, cohortId: "cohort-autumn" },
   });
 
-  console.log("Seed complete: 1 course, 3 lessons, 1 cohort, 3 sign-ins");
+  console.log("Seed complete: 2 courses, 14 lessons, 1 cohort, 3 sign-ins");
   console.log(`  teacher  ${teacher.email} / ${DEV_PASSWORD}`);
   console.log(`  parent   ${parent.email} / ${DEV_PASSWORD}`);
   console.log(`  child    alice123 / ${DEV_PIN}`);
